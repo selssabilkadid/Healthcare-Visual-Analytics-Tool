@@ -1,0 +1,24 @@
+{
+  "name": "healthcare-visual-analytics-tool",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/selssabilkadid/Healthcare-Visual-Analytics-Tool.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/selssabilkadid/Healthcare-Visual-Analytics-Tool/issues"
+  },
+  "homepage": "https://github.com/selssabilkadid/Healthcare-Visual-Analytics-Tool#readme",
+  "description": "",
+  "dependencies": {
+    "papaparse": "^5.5.3"
+  }
+}
