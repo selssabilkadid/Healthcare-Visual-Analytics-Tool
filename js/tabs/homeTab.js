@@ -1,27 +1,28 @@
-//import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7/+esm';
-
 export function renderHomeTab(data) {
   console.log('Rendering Home Tab');
-  
-  // Clear previous content
+
   const container = d3.select('#home-content');
+
+  // Avoid clearing repeatedly
+  if (!container.selectAll('.summary-cards').empty()) return;
+
   container.html('');
 
-  // Create summary cards (like the bank accounts in your image)
+  // Summary cards
   renderSummaryCards(container, data);
-  
-  // Create recent transactions/activity
+
+  // Recent activity
   renderRecentActivity(container, data);
-  
-  // Create overview charts
+
+  // Overview charts
   renderOverviewCharts(container, data);
 }
 
 function renderSummaryCards(container, data) {
   const summaryData = [
     { title: 'Total Patients', value: data.length, icon: '👥' },
-    { title: 'Avg Age', value: d3.mean(data, d => d.age).toFixed(1), icon: '📊' },
-    { title: 'Medical Claims', value: d3.sum(data, d => d.claim).toLocaleString(), icon: '💰' }
+    { title: 'Avg Age', value: d3.mean(data, d => +d.age || 0).toFixed(1), icon: '📊' },
+    { title: 'Medical Claims', value: d3.sum(data, d => +d.claim || 0).toLocaleString(), icon: '💰' }
   ];
 
   const cards = container.append('div')
@@ -46,9 +47,11 @@ function renderSummaryCards(container, data) {
 }
 
 function renderRecentActivity(container, data) {
-  // Implementation for recent activity section
+  // Only log for now
+  console.log('Render recent activity placeholder');
 }
 
 function renderOverviewCharts(container, data) {
-  // Implementation for overview visualizations
+  // Only log for now
+  console.log('Render overview charts placeholder');
 }

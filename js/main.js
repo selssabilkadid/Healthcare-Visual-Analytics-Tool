@@ -106,100 +106,49 @@
 // js/main.js - BROWSER VERSION
 // NO IMPORTS FOR D3 - it's loaded globally via <script> tag
 
-import { loadData, getDataStats, validateData } from './dataLoader.js';
+import { loadData } from './dataLoader.js';
 import tabManager from './utils/tabManager.js';
-import { renderDemographicsTab } from './tabs/demographicsTab.js';
-// import { renderHomeTab } from './tabs/homeTab.js'; // ← use when ready
 
-// =====================================================================
-// Global data store
-// =====================================================================
 let globalData = null;
 let appReady = false;
 
 // =====================================================================
-// Initialize the dashboard application
+// Initialize dashboard
 // =====================================================================
 async function init() {
   console.log('=== Healthcare Dashboard Initialization ===');
 
   try {
-    // Check if D3 is available
-    if (typeof d3 === 'undefined') {
-      throw new Error('D3.js is not loaded! Check your HTML <script> tags.');
-    }
+    if (typeof d3 === 'undefined') throw new Error('D3.js is not loaded!');
     console.log('D3.js version:', d3.version);
 
     showLoading('Initializing dashboard...');
 
-    // -----------------------------------------------------------------
-    // Load data
-    // -----------------------------------------------------------------
+    // Load dataset
     showLoading('Loading healthcare dataset...');
-    console.time('Total Data Load');
-
+    console.time('Data Load');
     globalData = await loadData('./data/healthcare_dataset_with_coords.csv');
+    console.timeEnd('Data Load');
+    console.log('Data loaded successfully:', globalData.length, 'records');
 
-    console.timeEnd('Total Data Load');
-    console.log('Data loaded successfully');
-
-    // -----------------------------------------------------------------
-    // Validate data
-    // -----------------------------------------------------------------
-    showLoading('Validating data...');
-    const validation = validateData(globalData);
-    console.log('Data validation:', validation);
-
-    if (!validation.isValid) {
-      console.warn('Data quality issues found:', validation.issues);
-    }
-
-    // -----------------------------------------------------------------
-    // Data statistics
-    // -----------------------------------------------------------------
-    const stats = getDataStats(globalData);
-    console.log('Data Statistics:', stats);
-
-    // -----------------------------------------------------------------
     // Register tabs
-    // -----------------------------------------------------------------
     showLoading('Setting up visualizations...');
 
-    tabManager.registerTab('home', () => {
-      renderHomePlaceholder(globalData);
-    });
-
-    tabManager.registerTab('demographics', () => {
-      renderDemographicsTab(globalData);
-    });
-
-    tabManager.registerTab('financial', () => {
-      renderFinancialPlaceholder(globalData);
-    });
-
-    tabManager.registerTab('geographic', () => {
-      renderGeographicPlaceholder(globalData);
-    });
+    tabManager.registerTab('home', () => renderHomePlaceholder(globalData));
+    tabManager.registerTab('demographics', () => renderDemographicsPlaceholder(globalData));
+    tabManager.registerTab('financial', () => renderFinancialPlaceholder(globalData));
+    tabManager.registerTab('geographic', () => renderGeographicPlaceholder(globalData));
 
     console.log('All tabs registered');
 
-    // -----------------------------------------------------------------
-    // Initialize tab system
-    // -----------------------------------------------------------------
-    tabManager.init();
+    // Initialize tab manager
+    tabManager.init('home');
 
     appReady = true;
 
     console.log('Dashboard initialized successfully!');
-    console.log('=== Initialization Complete ===');
-
-    // -----------------------------------------------------------------
-    // Hide loading & show success
-    // -----------------------------------------------------------------
-    setTimeout(() => {
-      hideLoading();
-      showSuccessMessage();
-    }, 400);
+    hideLoading();  // THIS IS THE KEY LINE!
+    showSuccessMessage();
 
   } catch (error) {
     console.error('Initialization Error:', error);
@@ -212,8 +161,11 @@ async function init() {
 // =====================================================================
 function renderHomePlaceholder(data) {
   const container = d3.select('#home-content');
-  container.html('');
 
+  // Only render if empty (prevents repeated clearing)
+  if (!container.selectAll('.placeholder').empty()) return;
+
+  container.html('');
   container.append('div')
     .attr('class', 'placeholder')
     .style('padding', '2rem')
@@ -225,10 +177,24 @@ function renderHomePlaceholder(data) {
     `);
 }
 
+function renderDemographicsPlaceholder(data) {
+  const container = d3.select('#demographics-content');
+
+  // Prevent multiple placeholders
+  if (!container.selectAll('.placeholder').empty()) return;
+
+  container.html('');
+  container.append('div')
+    .attr('class', 'placeholder')
+    .style('padding', '2rem')
+    .style('text-align', 'center')
+    .html(`<h2>Demographic Distribution</h2><p>Coming soon...</p>`);
+}
+
 function renderFinancialPlaceholder() {
   const container = d3.select('#financial-content');
+  if (!container.selectAll('.placeholder').empty()) return;
   container.html('');
-
   container.append('div')
     .attr('class', 'placeholder')
     .style('padding', '2rem')
@@ -237,8 +203,8 @@ function renderFinancialPlaceholder() {
 
 function renderGeographicPlaceholder() {
   const container = d3.select('#geographic-content');
+  if (!container.selectAll('.placeholder').empty()) return;
   container.html('');
-
   container.append('div')
     .attr('class', 'placeholder')
     .style('padding', '2rem')
@@ -246,43 +212,27 @@ function renderGeographicPlaceholder() {
 }
 
 // =====================================================================
-// Resize handling (SAFE)
-// =====================================================================
-let resizeTimer;
-window.addEventListener('resize', () => {
-  if (!appReady) return;
-
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => {
-    const currentTab = tabManager.getCurrentTab();
-    console.log('Window resized → re-render:', currentTab);
-    tabManager.renderCurrentTab();
-  }, 250);
-});
-
-// =====================================================================
 // Loading / feedback helpers
 // =====================================================================
 function showLoading(message = 'Loading...') {
   const loader = document.getElementById('loading');
-  const loadingText = document.getElementById('loading-text');
-
+  const text = document.getElementById('loading-text');
   if (loader) loader.style.display = 'flex';
-  if (loadingText) loadingText.textContent = message;
+  if (text) text.textContent = message;
 }
 
 function hideLoading() {
   const loader = document.getElementById('loading');
+  console.log('hideLoading called, loader:', loader);
   if (loader) loader.style.display = 'none';
+  const text = document.getElementById('loading-text');
+  if (text) text.textContent = '';
 }
 
 function showError(message) {
   const errorDiv = document.getElementById('error-message');
   if (errorDiv) {
-    errorDiv.innerHTML = `
-      <strong>Error:</strong> ${message}
-      <br><small>Check the browser console (F12) for details.</small>
-    `;
+    errorDiv.innerHTML = `<strong>Error:</strong> ${message}<br><small>Check console for details</small>`;
     errorDiv.style.display = 'block';
   }
   hideLoading();
@@ -292,23 +242,19 @@ function showSuccessMessage() {
   const successDiv = document.createElement('div');
   successDiv.style.cssText = `
     position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #48bb78;
-    color: white;
-    padding: 1rem 1.5rem;
-    border-radius: 8px;
+    top: 20px; right: 20px;
+    background: #48bb78; color: white;
+    padding: 1rem 1.5rem; border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     z-index: 9999;
   `;
-  successDiv.textContent = 'Dashboard loaded successfully!';
+  successDiv.textContent = '✅ Dashboard loaded successfully!';
   document.body.appendChild(successDiv);
-
   setTimeout(() => successDiv.remove(), 3000);
 }
 
 // =====================================================================
-// Start application
+// Start app
 // =====================================================================
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
@@ -320,5 +266,4 @@ if (document.readyState === 'loading') {
 // Debug helpers
 // =====================================================================
 window.getDashboardData = () => globalData;
-window.getDataStats = () => globalData ? getDataStats(globalData) : null;
 window.tabManager = tabManager;

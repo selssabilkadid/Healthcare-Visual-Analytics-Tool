@@ -6,7 +6,7 @@
  * @param {string} filePath - Path to CSV file (e.g., './data/healthcare_dataset.csv')
  * @returns {Promise<Array>} - Array of parsed data objects
  */
-export async function loadData(filePath = './data/healthcare_dataset.csv') {
+export async function loadData(filePath = './data/healthcare_dataset_with_coords.csv') {
   console.log('Loading data from:', filePath);
   console.time('CSV Load Time');
 
@@ -21,7 +21,6 @@ export async function loadData(filePath = './data/healthcare_dataset.csv') {
       // Show progress every 10000 rows
       if (index % 10000 === 0 && index > 0) {
         console.log(`Loaded ${index} rows...`);
-        updateLoadingText(`Loading data... ${index.toLocaleString()} records`);
       }
 
       // Parse and return each row
@@ -31,28 +30,35 @@ export async function loadData(filePath = './data/healthcare_dataset.csv') {
         Gender: row.Gender,
         'Blood Type': row['Blood Type'],
         'Medical Condition': row['Medical Condition'],
-        'Date of Admission': parseDate(row['Date of Admission']),
+        'Date of Admission': row['Date of Admission'],
         Doctor: row.Doctor,
         Hospital: row.Hospital,
         'Insurance Provider': row['Insurance Provider'],
         'Billing Amount': +row['Billing Amount'] || 0,
         'Room Number': +row['Room Number'] || 0,
         'Admission Type': row['Admission Type'],
-        'Discharge Date': parseDate(row['Discharge Date']),
+        'Discharge Date': row['Discharge Date'],
         Medication: row.Medication,
         'Test Results': row['Test Results'],
-        // Add computed fields
-        'Age Group': getAgeGroup(+row.Age)
+        // Additional fields 
+        'Type of Bill': row['Type of Bill'],
+        'Dates Valid': row['Dates Valid'],
+        'Length of Stay': row['Length of Stay'],
+        'Age Group': row['Age Group'],
+        'City': row['City'],
+        'Country': row['Country'],
+        'Latitude': row['Latitude'],
+        'Longitude': row['Longitude']
       };
     });
 
     console.timeEnd('CSV Load Time');
-    console.log(`✅ Successfully loaded ${data.length} records`);
+    console.log(`Successfully loaded ${data.length} records`);
 
     return data;
 
   } catch (error) {
-    console.error('❌ Error loading CSV:', error);
+    console.error('Error loading CSV:', error);
     throw new Error(`Failed to load data: ${error.message}`);
   }
 }
@@ -69,17 +75,6 @@ function parseDate(dateStr) {
   return isNaN(date.getTime()) ? null : date;
 }
 
-/**
- * Get age group category
- * @param {number} age - Age in years
- * @returns {string} - Age group category
- */
-function getAgeGroup(age) {
-  if (age < 19) return '0-18';
-  if (age < 41) return '19-40';
-  if (age < 66) return '41-65';
-  return '65+';
-}
 
 /**
  * Update loading text (if element exists)
@@ -118,10 +113,10 @@ export async function loadDataWithProgress(filePath, onProgress) {
     // Parse CSV with D3
     const data = await d3.csv(filePath, (row, index) => {
       // Report progress
-      if (onProgress && index % 5000 === 0) {
-        const progress = Math.round((index / totalLines) * 100);
-        onProgress(progress, index);
-      }
+      // if (onProgress && index % 5000 === 0) {
+      //   const progress = Math.round((index / totalLines) * 100);
+      //   onProgress(progress, index);
+      // }
 
       return {
         Age: +row.Age || 0,
@@ -129,9 +124,17 @@ export async function loadDataWithProgress(filePath, onProgress) {
         'Blood Type': row['Blood Type'],
         'Medical Condition': row['Medical Condition'],
         'Admission Type': row['Admission Type'],
-        'Billing Amount': +row['Billing Amount'] || 0,
+        'Billing Amount': row['Billing Amount'] ,
         'Test Results': row['Test Results'],
-        'Age Group': getAgeGroup(+row.Age)
+        // Additional fields 
+        'Type of Bill': row['Type of Bill'],
+        'Dates Valid': row['Dates Valid'],
+        'Length of Stay': row['Length of Stay'],
+        'Age Group': row['Age Group'],
+        'City': row['City'],
+        'Country': row['Country'],
+        'Latitude': row['Latitude'],
+        'Longitude': row['Longitude']
       };
     });
 
@@ -142,55 +145,4 @@ export async function loadDataWithProgress(filePath, onProgress) {
     console.error('Error in loadDataWithProgress:', error);
     throw error;
   }
-}
-
-/**
- * Get basic statistics about the loaded data
- * @param {Array} data - Array of data objects
- * @returns {Object} - Statistics object
- */
-export function getDataStats(data) {
-  if (!data || data.length === 0) {
-    return { error: 'No data provided' };
-  }
-
-  return {
-    totalRecords: data.length,
-    avgAge: d3.mean(data, d => d.Age).toFixed(1),
-    avgBilling: d3.mean(data, d => d['Billing Amount']).toFixed(2),
-    genderCounts: {
-      Male: data.filter(d => d.Gender === 'Male').length,
-      Female: data.filter(d => d.Gender === 'Female').length
-    },
-    ageGroups: {
-      '0-18': data.filter(d => d['Age Group'] === '0-18').length,
-      '19-40': data.filter(d => d['Age Group'] === '19-40').length,
-      '41-65': data.filter(d => d['Age Group'] === '41-65').length,
-      '65+': data.filter(d => d['Age Group'] === '65+').length
-    }
-  };
-}
-
-/**
- * Validate data quality
- * @param {Array} data - Array of data objects
- * @returns {Object} - Validation results
- */
-export function validateData(data) {
-  const issues = [];
-
-  // Check for missing critical fields
-  const missingAge = data.filter(d => !d.Age || d.Age === 0).length;
-  const missingGender = data.filter(d => !d.Gender).length;
-  const invalidBilling = data.filter(d => d['Billing Amount'] < 0).length;
-
-  if (missingAge > 0) issues.push(`${missingAge} records with missing age`);
-  if (missingGender > 0) issues.push(`${missingGender} records with missing gender`);
-  if (invalidBilling > 0) issues.push(`${invalidBilling} records with negative billing`);
-
-  return {
-    isValid: issues.length === 0,
-    totalRecords: data.length,
-    issues: issues
-  };
 }

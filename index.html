@@ -4,34 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Healthcare Visual Analytics Dashboard</title>
-    <script src="./bib/jquery-3.5.0.js"></script>
+    
+    <!-- Fix favicon 404 error -->
+    <link rel="icon" href="data:,">
+    
+    <!-- Load D3.js FIRST (before your modules) -->
     <script src="./bib/d3.v7.min.js"></script>
-    <script src="./bib/plot.js"></script>
-    <script type="module" src="./js/main.js"></script>
+    
+    <!-- Styles -->
     <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Inline loading animation styles -->
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .spinner {
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #667EEA;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-overlay p {
+            margin-top: 1rem;
+            color: #718096;
+            font-size: 0.95rem;
+        }
+    </style>
 </head>
 <body>
-    
-<div id="loading" class="loading-overlay" style="
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(255,255,255,0.95); display: flex;
-    flex-direction: column; align-items: center; justify-content: center;
-    z-index: 9999;">
-    <div style="
-        border: 4px solid #e2e8f0; border-top: 4px solid #667EEA;
-        border-radius: 50%; width: 50px; height: 50px;
-        animation: spin 1s linear infinite;"></div>
-    <p id="loading-text" style="margin-top: 1rem; color: #718096;">
-        Loading 54,966 records...
-    </p>
-</div>
+    <!-- Loading Indicator (ONLY ONE) -->
+    <div id="loading" class="loading-overlay">
+        <div class="spinner"></div>
+        <p id="loading-text">Loading healthcare dataset...</p>
+    </div>
 
-<style>
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-</style>
     <!-- Navigation Header -->
     <header class="dashboard-header">
         <div class="logo">
@@ -50,37 +76,17 @@
 
     <!-- Main Content Area -->
     <main class="dashboard-main">
-        <!-- Loading Indicator -->
-        <div id="loading" class="loading-overlay">
-            <div class="spinner"></div>
-            <p>Loading dashboard...</p>
-        </div>
-
         <!-- Error Message -->
         <div id="error-message" class="error-message" style="display: none;"></div>
 
-        <!-- Home Tab Content -->
-        <div id="home-content" class="tab-content active">
-            <!-- Content will be dynamically generated -->
-        </div>
-
-        <!-- Demographics Tab Content -->
-        <div id="demographics-content" class="tab-content">
-            <!-- Content will be dynamically generated -->
-        </div>
-
-        <!-- Financial Tab Content -->
-        <div id="financial-content" class="tab-content">
-            <!-- Content will be dynamically generated -->
-        </div>
-
-        <!-- Geographic Tab Content -->
-        <div id="geographic-content" class="tab-content">
-            <!-- Content will be dynamically generated -->
-        </div>
+        <!-- Tab Contents -->
+        <div id="home-content" class="tab-content"></div>
+        <div id="demographics-content" class="tab-content"></div>
+        <div id="financial-content" class="tab-content"></div>
+        <div id="geographic-content" class="tab-content"></div>
     </main>
 
-    <!-- Scripts -->
-    <script type="module" src="js/main.js"></script>
+    <!-- Load your main script LAST (after body content) -->
+    <script type="module" src="./js/main.js"></script>
 </body>
 </html>

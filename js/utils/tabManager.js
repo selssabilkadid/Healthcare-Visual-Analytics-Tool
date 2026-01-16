@@ -1,51 +1,59 @@
 class TabManager {
   constructor() {
-    this.currentTab = 'home';
-    this.tabs = new Map();
-    this.tabButtons = new Map();
+    this.currentTab = null;          // current active tab
+    this.tabs = new Map();           // tabId → renderFunction
+    this.tabButtons = new Map();     // tabId → button element
+    this.isRendering = false;        // render lock
   }
 
+  // Register a tab with its render function
   registerTab(tabId, renderFunction) {
     this.tabs.set(tabId, renderFunction);
   }
 
-  init() {
+  // Initialize tabs & attach click handlers
+  init(initialTab = 'home') {
     const tabButtons = document.querySelectorAll('[data-tab]');
     
     tabButtons.forEach(button => {
       const tabId = button.getAttribute('data-tab');
       this.tabButtons.set(tabId, button);
-      
+
       button.addEventListener('click', (e) => {
         e.preventDefault();
-        if (tabId !== this.currentTab) {
-          this.switchTab(tabId);
-        }
+        if (tabId !== this.currentTab) this.switchTab(tabId);
       });
     });
 
-    this.switchTab(this.currentTab);
+    // Show initial tab
+    this.switchTab(initialTab);
   }
 
+  // Switch tab
   switchTab(tabId) {
-    if (tabId === this.currentTab) return; // 🔴 CRITICAL GUARD
+    if (tabId === this.currentTab) return;
     if (!this.tabs.has(tabId)) return;
 
     this._updateVisibility(tabId);
     this._render(tabId);
+
     this.currentTab = tabId;
   }
 
+  // Show/hide tab content and update button active state
   _updateVisibility(tabId) {
+    // Update buttons
     this.tabButtons.forEach((button, id) => {
       button.classList.toggle('active', id === tabId);
     });
 
+    // Hide all tab content
     document.querySelectorAll('.tab-content').forEach(content => {
       content.style.display = 'none';
       content.classList.remove('active');
     });
 
+    // Show current tab content
     const tabContent = document.getElementById(`${tabId}-content`);
     if (tabContent) {
       tabContent.style.display = 'block';
@@ -53,13 +61,21 @@ class TabManager {
     }
   }
 
+  // Render tab content with lock
   _render(tabId) {
-    const renderFunction = this.tabs.get(tabId);
-    if (renderFunction) renderFunction();
+    if (this.isRendering) return; // prevent overlapping renders
+    this.isRendering = true;
+
+    requestAnimationFrame(() => {
+      const renderFunction = this.tabs.get(tabId);
+      if (renderFunction) renderFunction();
+      this.isRendering = false;
+    });
   }
 
-  // ✅ SAFE for resize
+  // Re-render current tab (safe for resize)
   renderCurrentTab() {
+    if (!this.currentTab) return;
     this._render(this.currentTab);
   }
 
@@ -67,6 +83,7 @@ class TabManager {
     return this.currentTab;
   }
 }
-// At the very bottom of tabManager.js
+
+// Export singleton
 const tabManager = new TabManager();
 export default tabManager;
