@@ -2,26 +2,85 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Healthcare Visual Analytics</title>
-
-    <!-- D3.js -->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-
-    <!-- CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Visual Analytics Dashboard</title>
+    <script src="./bib/jquery-3.5.0.js"></script>
+    <script src="./bib/d3.v7.min.js"></script>
+    <script src="./bib/plot.js"></script>
+    <script type="module" src="./js/main.js"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    
+<div id="loading" class="loading-overlay" style="
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255,255,255,0.95); display: flex;
+    flex-direction: column; align-items: center; justify-content: center;
+    z-index: 9999;">
+    <div style="
+        border: 4px solid #e2e8f0; border-top: 4px solid #667EEA;
+        border-radius: 50%; width: 50px; height: 50px;
+        animation: spin 1s linear infinite;"></div>
+    <p id="loading-text" style="margin-top: 1rem; color: #718096;">
+        Loading 54,966 records...
+    </p>
+</div>
 
-    <h1>Healthcare Visual Analytics Dashboard</h1>
+<style>
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+    <!-- Navigation Header -->
+    <header class="dashboard-header">
+        <div class="logo">
+            <h1>Healthcare Analytics</h1>
+        </div>
+        <nav class="tab-navigation">
+            <button class="tab-btn active" data-tab="home">Home</button>
+            <button class="tab-btn" data-tab="demographics">Demographics</button>
+            <button class="tab-btn" data-tab="financial">Financial</button>
+            <button class="tab-btn" data-tab="geographic">Geographic</button>
+        </nav>
+        <div class="user-info">
+            <span>User Name</span>
+        </div>
+    </header>
 
-    <div id="charts">
-        <!-- D3 charts will go here -->
-    </div>
+    <!-- Main Content Area -->
+    <main class="dashboard-main">
+        <!-- Loading Indicator -->
+        <div id="loading" class="loading-overlay">
+            <div class="spinner"></div>
+            <p>Loading dashboard...</p>
+        </div>
 
-    <!-- JS -->
-    <script src="js/dataLoader.js"></script>
-    <script src="js/preprocessing.js"></script>
-    <script src="js/main.js"></script>
+        <!-- Error Message -->
+        <div id="error-message" class="error-message" style="display: none;"></div>
 
+        <!-- Home Tab Content -->
+        <div id="home-content" class="tab-content active">
+            <!-- Content will be dynamically generated -->
+        </div>
+
+        <!-- Demographics Tab Content -->
+        <div id="demographics-content" class="tab-content">
+            <!-- Content will be dynamically generated -->
+        </div>
+
+        <!-- Financial Tab Content -->
+        <div id="financial-content" class="tab-content">
+            <!-- Content will be dynamically generated -->
+        </div>
+
+        <!-- Geographic Tab Content -->
+        <div id="geographic-content" class="tab-content">
+            <!-- Content will be dynamically generated -->
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>
