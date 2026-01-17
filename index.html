@@ -3,18 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Healthcare Visual Analytics Dashboard</title>
-    
-    <!-- Fix favicon 404 error -->
+    <title>Healthcare Analytics Dashboard</title>
     <link rel="icon" href="data:,">
     
-    <!-- Load D3.js FIRST (before your modules) -->
+    <!-- D3.js -->
     <script src="./bib/d3.v7.min.js"></script>
     
     <!-- Styles -->
     <link rel="stylesheet" href="css/style.css">
     
-    <!-- Inline loading animation styles -->
     <style>
         @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -30,8 +27,8 @@
             background: rgba(255, 255, 255, 0.95);
             display: flex;
             flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             z-index: 9999;
         }
         
@@ -52,41 +49,155 @@
     </style>
 </head>
 <body>
-    <!-- Loading Indicator (ONLY ONE) -->
+    <!-- Loading Indicator -->
     <div id="loading" class="loading-overlay">
         <div class="spinner"></div>
-        <p id="loading-text">Loading healthcare dataset...</p>
+        <p id="loading-text">Loading healthcare data...</p>
     </div>
 
-    <!-- Navigation Header -->
-    <header class="dashboard-header">
-        <div class="logo">
-            <h1>Healthcare Analytics</h1>
-        </div>
+    <!-- Main Container -->
+    <div class="dashboard-container">
+        
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <div class="logo">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <rect width="32" height="32" rx="8" fill="#667EEA"/>
+                        <path d="M16 8V24M8 16H24" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
+                    <h1>Healthcare Analytics</h1>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <button class="icon-btn" title="Search">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="2"/>
+                        <path d="M14 14L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" title="Notifications">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 2C7.79 2 6 3.79 6 6V10L4 12V14H16V12L14 10V6C14 3.79 12.21 2 10 2Z" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M9 17C9 17.55 9.45 18 10 18C10.55 18 11 17.55 11 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span class="notification-badge">3</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Filters Section -->
+        <section class="filters-section">
+            <div class="filters-container">
+                <div class="filter-group">
+                    <label>Year</label>
+                    <select id="filter-year" class="filter-select">
+                        <option value="">All Years</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                        <option value="2019">2019</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Month</label>
+                    <select id="filter-month" class="filter-select">
+                        <option value="">All Months</option>
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Country</label>
+                    <select id="filter-country" class="filter-select">
+                        <option value="">All Countries</option>
+                        <!-- Will be populated dynamically -->
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>City</label>
+                    <select id="filter-city" class="filter-select">
+                        <option value="">All Cities</option>
+                        <!-- Will be populated dynamically -->
+                    </select>
+                </div>
+
+                <button id="apply-filters" class="btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M2 4H14M4 8H12M6 12H10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Apply Filters
+                </button>
+
+                <button id="reset-filters" class="btn-secondary">Reset</button>
+            </div>
+
+            <div class="active-filters" id="active-filters" style="display: none;">
+                <span class="filter-label">Active filters:</span>
+                <div id="filter-tags"></div>
+            </div>
+        </section>
+
+        <!-- Tab Navigation -->
         <nav class="tab-navigation">
-            <button class="tab-btn active" data-tab="home">Home</button>
-            <button class="tab-btn" data-tab="demographics">Demographics</button>
-            <button class="tab-btn" data-tab="financial">Financial</button>
-            <button class="tab-btn" data-tab="geographic">Geographic</button>
+            <button class="tab-btn active" data-tab="overview">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <rect x="2" y="2" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                    <rect x="10" y="2" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                    <rect x="2" y="10" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                    <rect x="10" y="10" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                Overview
+            </button>
+            <button class="tab-btn" data-tab="demographics">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <circle cx="9" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M3 15C3 12.2386 5.23858 10 8 10H10C12.7614 10 15 12.2386 15 15" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                Demographics
+            </button>
+            <button class="tab-btn" data-tab="financial">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <path d="M2 9L9 2L16 9M4 7V15C4 15.5523 4.44772 16 5 16H13C13.5523 16 14 15.5523 14 15V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                Financial
+            </button>
+            <button class="tab-btn" data-tab="geographic">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <path d="M9 2C6.23858 2 4 4.23858 4 7C4 11 9 16 9 16C9 16 14 11 14 7C14 4.23858 11.7614 2 9 2Z" stroke="currentColor" stroke-width="1.5"/>
+                    <circle cx="9" cy="7" r="2" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                Geographic
+            </button>
         </nav>
-        <div class="user-info">
-            <span>User Name</span>
-        </div>
-    </header>
 
-    <!-- Main Content Area -->
-    <main class="dashboard-main">
-        <!-- Error Message -->
-        <div id="error-message" class="error-message" style="display: none;"></div>
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <div id="error-message" class="error-message" style="display: none;"></div>
 
-        <!-- Tab Contents -->
-        <div id="home-content" class="tab-content"></div>
-        <div id="demographics-content" class="tab-content"></div>
-        <div id="financial-content" class="tab-content"></div>
-        <div id="geographic-content" class="tab-content"></div>
-    </main>
+            <div id="overview-content" class="tab-content"></div>
+            <div id="demographics-content" class="tab-content"></div>
+            <div id="financial-content" class="tab-content"></div>
+            <div id="geographic-content" class="tab-content"></div>
+        </main>
+    </div>
 
-    <!-- Load your main script LAST (after body content) -->
     <script type="module" src="./js/main.js"></script>
 </body>
 </html>
