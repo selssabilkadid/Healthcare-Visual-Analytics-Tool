@@ -4,6 +4,7 @@ import { loadData } from './dataLoader.js';
 import tabManager from './utils/tabManager.js';
 import filterManager from './utils/filterManager.js';
 import { renderDemographicsTab } from './tabs/demographicsTab.js';
+import { renderFinancialTab } from './tabs/financialTab.js';
 
 let globalData = null;
 let appReady = false;
@@ -264,25 +265,6 @@ function calculatePercentage(value, total) {
   return ((value / total) * 100).toFixed(1) + '% of total';
 }
 
-// =====================================================================
-// Financial Tab
-// =====================================================================
-function renderFinancialTab(data) {
-  const container = d3.select('#financial-content');
-  container.html('');
-
-  container.append('div')
-    .attr('class', 'placeholder')
-    .html(`
-      <h2>💰 Financial Analytics</h2>
-      <p>Analyzing <strong>${data.length.toLocaleString()}</strong> billing records</p>
-      <p style="margin-top: 1rem; color: #718096;">
-        Total Billing: <strong style="color: #48BB78; font-size: 1.5rem;">
-        $${d3.sum(data, d => d['Billing Amount']).toLocaleString(undefined, {maximumFractionDigits: 0})}</strong>
-      </p>
-      <p style="margin-top: 0.5rem;">Charts coming soon...</p>
-    `);
-}
 
 // =====================================================================
 // Geographic Tab
