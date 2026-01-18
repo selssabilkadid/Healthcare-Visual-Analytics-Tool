@@ -121,51 +121,43 @@ body {
     text-align: center;
 }
 
-/* ============ FILTERS SECTION ============ */
+/* ============ COMPACT FILTERS SECTION ============ */
 
 .filters-section {
-    background: var(--bg-secondary);
-    padding: 1.5rem 2rem;
+    background: var(--bg-primary);
+    padding: 1rem 2rem;
     border-bottom: 1px solid var(--border-color);
 }
 
 .filters-container {
     display: flex;
-    align-items: flex-end;
-    gap: 1rem;
+    align-items: center;
+    gap: 0.75rem;
     flex-wrap: wrap;
 }
 
-.filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
+/* Hide labels for compact look */
 .filter-group label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    display: none; 
 }
 
+/* Minimalist Select Inputs */
 .filter-select {
-    min-width: 160px;
+    min-width: 150px;
     padding: 0.625rem 1rem;
-    border: 1.5px solid var(--border-color);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     background: white;
     color: var(--text-primary);
     font-size: 0.875rem;
-    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23718096' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23718096' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
-    padding-right: 2.5rem;
+    padding-right: 2rem;
+    box-shadow: var(--shadow-sm);
 }
 
 .filter-select:hover {
@@ -178,9 +170,11 @@ body {
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+/* === BUTTONS RESTORED TO BLUE DESIGN === */
+
 .btn-primary,
 .btn-secondary {
-    padding: 0.625rem 1.25rem;
+    padding: 0.625rem 1.25rem; /* Original larger padding */
     border: none;
     border-radius: var(--radius-sm);
     font-size: 0.875rem;
@@ -190,81 +184,103 @@ body {
     align-items: center;
     gap: 0.5rem;
     transition: all 0.2s;
+    height: auto;
 }
 
+/* Apply Button (Blue) */
 .btn-primary {
-    background: var(--primary);
+    background: var(--primary); /* Restored Blue */
     color: white;
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
 }
 
 .btn-primary:hover {
     background: var(--primary-dark);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 6px rgba(102, 126, 234, 0.4);
 }
 
+/* Reset Button */
 .btn-secondary {
-    background: transparent;
+    background: white;
     color: var(--text-secondary);
-    border: 1.5px solid var(--border-color);
+    border: 1px solid var(--border-color);
 }
 
 .btn-secondary:hover {
-    background: var(--bg-primary);
-    border-color: var(--text-secondary);
+    background: #FFF;
+    color: var(--danger); /* Red on hover for reset */
+    border-color: var(--danger);
 }
 
-/* Active Filters */
-.active-filters {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
+/* Specific request: Remove icon from Apply/Set Filter button */
+#apply-filters svg,
+#apply-filters i {
+    display: none !important;
 }
 
-.filter-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    text-transform: uppercase;
+/* HIDE THE RIBBON (Active filters section) */
+.active-filters, 
+#filter-tags, 
+#active-filters {
+    display: none !important;
 }
 
-#filter-tags {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
+/* ============ MINIMAL TOAST NOTIFICATION ============ */
 
-.filter-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.375rem 0.75rem;
-    background: var(--primary);
+.filter-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--primary); /* Blue background matching theme */
     color: white;
-    font-size: 0.75rem;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
     font-weight: 500;
-    border-radius: 20px;
+    z-index: 10000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    animation: slideUpFade 0.3s ease forwards;
+    pointer-events: none;
 }
 
-.filter-tag button {
-    background: none;
-    border: none;
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+/* ============ MINIMAL TOAST NOTIFICATION ============ */
+
+.filter-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #333;
     color: white;
-    cursor: pointer;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    font-size: 1rem;
-    opacity: 0.8;
-    transition: opacity 0.2s;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    z-index: 10000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    animation: slideUpFade 0.3s ease forwards;
+    pointer-events: none; /* Don't block clicks */
 }
 
-.filter-tag button:hover {
-    opacity: 1;
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* ============ TAB NAVIGATION ============ */
