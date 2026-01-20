@@ -9,6 +9,7 @@ import { renderOverviewTab } from './tabs/overviewTab.js';
 import { renderDemographicsTab } from './tabs/demographicsTab.js';
 import { renderFinancialTab } from './tabs/financialTab.js';
 // Note: Geographic tab is defined locally below as a placeholder since no file was provided
+import { renderGeographicTab } from './tabs/geographicTab.js';
 
 let globalData = null;
 let appReady = false;
@@ -79,22 +80,7 @@ async function init() {
   }
 }
 
-// =====================================================================
-// Geographic Tab (Placeholder)
-// =====================================================================
-// Kept local because it wasn't imported in your original code
-function renderGeographicTab(data) {
-  const container = d3.select('#geographic-content');
-  container.html('');
 
-  container.append('div')
-    .attr('class', 'placeholder')
-    .html(`
-      <h2>🗺️ Geographic Distribution</h2>
-      <p>Showing <strong>${data.length.toLocaleString()}</strong> patient locations</p>
-      <p style="margin-top: 1rem;">Map visualization coming soon...</p>
-    `);
-}
 
 // =====================================================================
 // UI Helper Functions
