@@ -432,7 +432,7 @@ function renderMedicalConditionsDistribution(container, data) {
     const left = row.append('div').style('display', 'flex').style('align-items', 'center').style('gap', '0.75rem');
     left.append('div').style('width','12px').style('height','12px').style('border-radius','3px')
       .style('background', COLORS.medicalConditions[d.condition]);
-    left.append('span').style('font-weight','500').style('color','#2D3748').text(d.condition);
+    left.append('span').style('font-weight','500').style('color','--text-muted').text(d.condition);
     
     row.append('span').style('font-weight','600').style('color','#667EEA')
       .text(`${d.count.toLocaleString()} (${d.pct}%)`);
@@ -454,9 +454,9 @@ function renderAdmissionTypesDistribution(container, data) {
   counts.forEach(d => {
     const row = div.append('div').style('margin-bottom', '1rem');
     row.append('div').style('display','flex').style('justify-content','space-between').style('margin-bottom','0.5rem')
-      .html(`<span style="font-weight:500;color:#2D3748">${d.type}</span><span style="font-weight:600">${d.count.toLocaleString()} (${d.pct}%)</span>`);
+      .html(`<span style="font-weight:500;color:--text-muted">${d.type}</span><span style="font-weight:600">${d.count.toLocaleString()} (${d.pct}%)</span>`);
     
-    row.append('div').style('width','100%').style('height','10px').style('background','#E2E8F0').style('border-radius','5px').style('overflow','hidden')
+    row.append('div').style('width','100%').style('height','10px').style('background','--text-muted').style('border-radius','5px').style('overflow','hidden')
       .append('div').style('width','0%').style('height','100%').style('background', colors[d.type])
       .transition().duration(800).style('width', d.pct + '%');
   });
