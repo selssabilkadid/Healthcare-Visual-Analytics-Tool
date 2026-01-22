@@ -30,8 +30,8 @@ export async function renderGeographicTab(data) {
         .style('border', '1px solid #e2e8f0')
         .style('border-radius', '8px')
         .html(`
-            <h3 style="margin-top:0">Sélectionnez un hôpital</h3>
-            <p style="color: #64748b">Cliquez sur un point sur la carte pour voir les détails.</p>
+            <h3 style="margin-top:0">Select a hospital</h3>
+            <p style="color: #64748b">Click in a point on the map to see more details.</p>
         `);
 
     // RÉINTÉGRATION DE LA LÉGENDE
@@ -55,7 +55,7 @@ function createLegend(parent) {
         .style('z-index', '100');
 
     legend.html(`
-        <h4 style="margin:0 0 8px 0; font-size:13px; color: ${isDark ? '#F7FAFC' : '#1A202C'};">Facturation Moyenne</h4>
+        <h4 style="margin:0 0 8px 0; font-size:13px; color: ${isDark ? '#F7FAFC' : '#1A202C'};">Average Billing</h4>
         <div style="display:flex; flex-direction:column; gap:5px;">
             <div style="display:flex; align-items:center; gap:8px;">
                 <div style="width:12px; height:12px; border-radius:50%; background:#FF6B6B;"></div>
@@ -71,7 +71,7 @@ function createLegend(parent) {
             </div>
         </div>
         <p style="margin:8px 0 0 0; font-size:10px; border-top:1px solid ${isDark ? '#4A5568' : '#eee'}; padding-top:5px; color:${isDark ? '#A0AEC0' : '#666'};">
-            Taille du point = Nombre de patients
+            Point size = Number of patients
         </p>
     `);
 }

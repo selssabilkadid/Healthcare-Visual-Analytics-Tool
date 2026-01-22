@@ -133,44 +133,74 @@ function aggregateData(data) {
 
 
 function renderSummaryCards(container, agg, data) {
-  const  kpi = agg.kpis;
+  const kpi = agg.kpis;
   
+  // Added a 4th card (Total Patients) to complete the 4-column grid layout
   const cards = [
     { title: 'Total Revenue', value: `$${kpi.totalRevenue.toLocaleString()}`, subtitle: 'Normal Bills', icon: '💰', color: '#667EEA' },
     { title: 'Total Refunds', value: `$${kpi.totalRefunds.toLocaleString()}`, subtitle: 'Reimbursements', icon: '🔄', color: '#FF6B6B' },
-    { title: 'Avg Cost per Visit', value: `$${kpi.avgCost.toFixed(0)}`, subtitle: 'Per patient', icon: '💳', color: '#FFA500' },
-    { title: 'Bill Types', value: `${kpi.normalBillCount.toLocaleString()} / ${kpi.refundBillCount}`, subtitle: 'Normal / Refund', icon: '📊', color: '#E89AC7' }
+    { title: 'Avg Visit Cost', value: `$${kpi.avgCost.toLocaleString(undefined, {maximumFractionDigits: 0})}`, subtitle: 'Per patient', icon: '💳', color: '#FFA500' },
+    { title: 'Patient Volume', value: kpi.totalPatients.toLocaleString(), subtitle: 'Total Encounters', icon: '👥', color: '#4ECDC4' }
   ];
 
-
   const cardContainer = container.append('div')
-    .attr('class', 'summary-cards-compact')
+    .attr('class', 'summary-cards-grid')
     .style('display', 'grid')
     .style('grid-template-columns', 'repeat(4, 1fr)')
-    .style('gap', '1.5rem')
-    .style('margin-bottom', '1rem');
+    .style('gap', '1.25rem')
+    .style('margin-bottom', '1.5rem');
 
   const cardDivs = cardContainer.selectAll('.metric-card')
     .data(cards).enter().append('div')
-    .attr('class', 'metric-card')
-    .style('padding', '1.5rem');
+    .attr('class', 'chart-card') // Using chart-card class for consistent borders/shadows
+    .style('padding', '1.25rem')
+    .style('display', 'flex')
+    .style('align-items', 'center')
+    .style('gap', '1rem')
+    .style('background', '#fff')
+    .style('border-radius', '12px')
+    .style('box-shadow', '0 1px 3px rgba(0,0,0,0.1)');
 
-  cardDivs.append('div').attr('class', 'metric-icon')
-    .style('width', '56px')
-    .style('height', '56px')
-    .style('font-size', '1.75rem')
-    .style('background', d => `${d.color}15`)
+  // Consistent Icon Styling
+  cardDivs.append('div')
+    .attr('class', 'metric-icon')
+    .style('width', '48px')
+    .style('height', '48px')
+    .style('display', 'flex')
+    .style('align-items', 'center')
+    .style('justify-content', 'center')
+    .style('border-radius', '10px')
+    .style('font-size', '1.5rem')
+    .style('flex-shrink', '0')
+    .style('background', d => `${d.color}15`) // 15% opacity background
     .text(d => d.icon);
 
-  const cardContent = cardDivs.append('div').attr('class', 'metric-content');
-  cardContent.append('div').attr('class', 'metric-title').text(d => d.title);
+  const cardContent = cardDivs.append('div')
+    .attr('class', 'metric-content')
+    .style('overflow', 'hidden');
+
+  cardContent.append('div')
+    .attr('class', 'metric-title')
+    .style('font-size', '0.75rem')
+    .style('text-transform', 'uppercase')
+    .style('letter-spacing', '0.025em')
+    .style('font-weight', '600')
+    .style('color', '#64748b')
+    .text(d => d.title);
+
   cardContent.append('div')
     .attr('class', 'metric-value')
-    .style('font-size', '1.875rem')
+    .style('font-size', '1.5rem')
+    .style('font-weight', '700')
+    .style('color', '#1e293b')
+    .style('line-height', '1.2')
     .text(d => d.value);
+
   cardContent.append('div')
     .attr('class', 'metric-subtitle')
-    .style('font-size', '0.8125rem')
+    .style('font-size', '0.75rem')
+    .style('color', '#94a3b8')
+    .style('margin-top', '2px')
     .text(d => d.subtitle);
 }
 

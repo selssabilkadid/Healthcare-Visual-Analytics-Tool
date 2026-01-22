@@ -167,7 +167,6 @@ class ThemeManager {
 const themeManager = new ThemeManager();
 export default themeManager;
 
-// Add CSS animations if not already present
 if (!document.getElementById('theme-animations')) {
   const style = document.createElement('style');
   style.id = 'theme-animations';
