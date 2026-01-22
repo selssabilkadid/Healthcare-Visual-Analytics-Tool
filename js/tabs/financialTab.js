@@ -138,8 +138,6 @@ function renderSummaryCards(container, agg, data) {
   const cards = [
     { title: 'Total Revenue', value: `$${kpi.totalRevenue.toLocaleString()}`, subtitle: 'Normal Bills', icon: '💰', color: '#667EEA' },
     { title: 'Total Refunds', value: `$${kpi.totalRefunds.toLocaleString()}`, subtitle: 'Reimbursements', icon: '🔄', color: '#FF6B6B' },
-    { title: 'Total Patients', value: kpi.totalPatients.toLocaleString(), subtitle: `${kpi.distinctPatients.toLocaleString()} unique`, icon: '👥', color: '#4ECDC4' },
-    { title: 'Avg Length of Stay', value: kpi.avgLengthOfStay.toFixed(1), subtitle: 'Days', icon: '🏥', color: '#9B7EBD' },
     { title: 'Avg Cost per Visit', value: `$${kpi.avgCost.toFixed(0)}`, subtitle: 'Per patient', icon: '💳', color: '#FFA500' },
     { title: 'Bill Types', value: `${kpi.normalBillCount.toLocaleString()} / ${kpi.refundBillCount}`, subtitle: 'Normal / Refund', icon: '📊', color: '#E89AC7' }
   ];
@@ -148,7 +146,7 @@ function renderSummaryCards(container, agg, data) {
   const cardContainer = container.append('div')
     .attr('class', 'summary-cards-compact')
     .style('display', 'grid')
-    .style('grid-template-columns', 'repeat(3, 1fr)')
+    .style('grid-template-columns', 'repeat(4, 1fr)')
     .style('gap', '1.5rem')
     .style('margin-bottom', '1rem');
 
@@ -519,7 +517,7 @@ function renderAnnual(container, agg) {
     .style('height', '100%'); // Alignement vertical avec l'autre carte
   
   const header = section.append('div').attr('class', 'chart-header');
-  header.append('h3').text('Annual Billing by Country')
+  header.append('h3').text('Annual Billing')
     .style('font-size', '1.2rem')
     .style('margin-bottom', '0.5rem');
   header.append('p')
@@ -556,7 +554,7 @@ function renderAnnual(container, agg) {
   // --- CONFIGURATION DES COULEURS PERSONNALISÉES ---
   const customColors = {
     '2020': '#FF6B6B', '2021': '#4ECDC4', '2022': '#9B7EBD',
-    '2023': '#FFA500', '2024': '#667EEA', '2025': '#E89B9B'
+    '2023': '#FFA500', '2024': '#667EEA', '2019': '#f7f731'
   };
 
   const color = d3.scaleOrdinal()

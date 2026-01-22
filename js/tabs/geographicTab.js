@@ -6,34 +6,48 @@ export async function renderGeographicTab(data) {
     d3.selectAll('.tab-content').style('display', 'none');
     container.style('display', 'block').selectAll('*').remove();
 
-    const geoLayout = container.append('div')
-        .attr('class', 'chart-card')
-        .style('height', 'calc(100vh - 250px)')
+    // Conteneur principal en Flexbox
+    const mainLayout = container.append('div')
         .style('display', 'flex')
-        .style('flex-direction', 'column')
-        .style('padding', '0');
+        .style('gap', '20px')
+        .style('position', 'relative') // Important pour positionner la légende par-dessus
+        .style('height', 'calc(100vh - 250px)');
 
-    geoLayout.append('div')
+    // Zone de la carte
+    mainLayout.append('div')
         .attr('id', 'viewDiv')
-        .style('flex-grow', '1')
-        .style('width', '100%');
+        .style('flex', '3') 
+        .style('border-radius', '8px');
 
-    // Ajout d'une légende propre
-    createLegend(container);
+    // Panneau d'information (Side Panel)
+    const infoPanel = mainLayout.append('div')
+        .attr('id', 'hospital-info-panel')
+        .style('flex', '1')
+        .style('background', '#f8fafc')
+        .style('padding', '20px')
+        .style('border', '1px solid #e2e8f0')
+        .style('border-radius', '8px')
+        .html(`
+            <h3 style="margin-top:0">Sélectionnez un hôpital</h3>
+            <p style="color: #64748b">Cliquez sur un point sur la carte pour voir les détails.</p>
+        `);
 
-    setTimeout(() => initArcGISMap(data), 150);
+    // RÉINTÉGRATION DE LA LÉGENDE
+    createLegend(mainLayout);
+
+    initArcGISMap(data);
 }
 
 function createLegend(parent) {
     const legend = parent.append('div')
         .style('position', 'absolute')
-        .style('bottom', '40px')
-        .style('left', '40px')
+        .style('bottom', '20px')
+        .style('left', '20px')
         .style('background', 'white')
         .style('padding', '12px')
         .style('border-radius', '8px')
         .style('box-shadow', '0 4px 12px rgba(0,0,0,0.15)')
-        .style('z-index', '1000');
+        .style('z-index', '100');
 
     legend.html(`
         <h4 style="margin:0 0 8px 0; font-size:13px;">Facturation Moyenne</h4>
@@ -58,10 +72,9 @@ function createLegend(parent) {
 }
 
 function initArcGISMap(data) {
-    require([
-        "esri/Map", "esri/views/MapView", "esri/layers/GraphicsLayer", "esri/Graphic"
-    ], function(Map, MapView, GraphicsLayer, Graphic) {
-
+    require(["esri/Map", "esri/views/MapView", "esri/layers/GraphicsLayer", "esri/Graphic"], 
+    function(Map, MapView, GraphicsLayer, Graphic) {
+        
         const map = new Map({ basemap: "gray-vector" });
         const view = new MapView({
             container: "viewDiv",
@@ -79,67 +92,71 @@ function initArcGISMap(data) {
             const first = records[0];
             const patientCount = records.length;
             const avgBilling = d3.mean(records, d => +d['Billing Amount']);
-            
-            // Logique de couleur financière
-            let color = "#4ECDC4"; // Faible
+
+            // RÉINTÉGRATION DES COULEURS ET TAILLES DYNAMIQUES
+            let color = "#c1e7ff"; // Faible (< 15k)
             if (avgBilling > 25000) color = "#FF6B6B"; // Elevé
             else if (avgBilling > 15000) color = "#FFA500"; // Moyen
 
             const graphic = new Graphic({
                 geometry: { type: "point", longitude: +first.Longitude, latitude: +first.Latitude },
-                symbol: {
-                    type: "simple-marker",
-                    color: color,
-                    size: Math.min(Math.max(patientCount / 2, 8), 22),
-                    outline: { color: "white", width: 1 }
+                symbol: { 
+                    type: "simple-marker", 
+                    color: color, 
+                    size: Math.min(Math.max(patientCount / 2, 8), 22), // Taille proportionnelle
+                    outline: {color: "white", width: 1} 
                 },
                 attributes: { 
-                    name, 
-                    count: patientCount, 
+                    name: name,
+                    count: patientCount,
                     billing: avgBilling.toFixed(0),
-                    dominant: Array.from(d3.rollup(records, v => v.length, d => d['Test Results'])).reduce((a, b) => a[1] > b[1] ? a : b)[0]
-                },
-                popupTemplate: {
-                    title: "{name}",
-                    content: `
-                        <div style="font-family:sans-serif; line-height:1.5;">
-                            <b>Number of patients :</b> {count}<br>
-                            <b>Average billing amount :</b> {billing} $<br>
-                            <b>Dominant test result category :</b> {dominant}<br>
-                            <button id="filter-btn-${name.replace(/\s+/g, '')}" 
-                                    style="margin-top:12px; width:100%; background:#4f46e5; color:white; border:none; padding:8px; border-radius:4px; cursor:pointer; font-weight:bold;">
-                                ANALYSER CE CENTRE
-                            </button>
-                            
-                        </div>`
+                    dominant: Array.from(d3.rollup(records, v => v.length, d => d['Test Results']))
+                                   .reduce((a, b) => a[1] > b[1] ? a : b)[0]
                 }
             });
             graphicsLayer.add(graphic);
         });
 
-        // RÉPARATION DU BOUTON : Détection globale des clics
         view.on("click", (event) => {
             view.hitTest(event).then((response) => {
                 const results = response.results.filter(r => r.graphic.layer === graphicsLayer);
                 if (results.length > 0) {
-                    const hospitalName = results[0].graphic.attributes.name;
-                    // On utilise un délégué d'événement car le popup met du temps à apparaître
-                    document.addEventListener('click', function(e) {
-                        if (e.target && e.target.id === `filter-btn-${hospitalName.replace(/\s+/g, '')}`) {
-                            applyGlobalFilter(hospitalName);
-                        }
-                    }, { once: true });
+                    const attr = results[0].graphic.attributes;
+                    updateSidePanel(attr);
                 }
             });
         });
     });
 }
 
+function updateSidePanel(attr) {
+    const panel = d3.select('#hospital-info-panel');
+    panel.html(`
+        <h3 style="color:#4f46e5">${attr.name}</h3>
+        <hr style="border:0; border-top:1px solid #e2e8f0; margin:15px 0">
+        <p><b>Patients :</b> ${attr.count}</p>
+        <p><b>Average Bill :</b> ${attr.billing} $</p>
+        <p><b>Dominant Result :</b> ${attr.dominant}</p>
+        
+        <button id="btn-analyze-hospital" 
+                style="width:100%; padding:12px; background:#4f46e5; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold; margin-top:20px;">
+            ANALYSE 
+        </button>
+    `);
+
+    document.getElementById('btn-analyze-hospital').onclick = () => {
+        applyGlobalFilter(attr.name);
+    };
+}
+
 function applyGlobalFilter(hospitalName) {
-    console.log("Filtrage pour :", hospitalName);
     if (window.filterManager) {
-        window.filterManager.updateFilter('Hospital', hospitalName); // Interaction ArcGIS -> D3 
-        // On retourne à l'overview pour voir les changements [cite: 42]
-        document.querySelector('[data-tab="overview"]').click();
+        window.filterManager.updateFilter('Hospital', hospitalName); 
+        
+        if (window.filterManager.showFilterMessage) {
+            window.filterManager.showFilterMessage(`Analyse activée pour : ${hospitalName}`);
+        }
+
+
     }
 }

@@ -73,68 +73,17 @@ class FilterManager {
     });
   }
 
-  applyFilters() {
-    if (this.isFiltering) return;
-    this.isFiltering = true;
 
-    const applyBtn = document.getElementById('apply-filters');
-    const originalText = applyBtn ? applyBtn.innerHTML : 'Apply';
-    
-    // 1. Show Loading State immediately
-    if (applyBtn) {
-      applyBtn.innerHTML = '⏳ Filtering...';
-      applyBtn.style.opacity = '0.7';
-      applyBtn.style.cursor = 'wait';
-    }
-
-    // 2. Use setTimeout to allow the UI to update BEFORE the heavy filtering starts
-    // This fixes the "freeze" and the tab render issues
-    setTimeout(() => {
-      try {
-        // Collect values
-        this.activeFilters = {};
-        const year = document.getElementById('filter-year')?.value;
-        const month = document.getElementById('filter-month')?.value;
-        const country = document.getElementById('filter-country')?.value;
-        const city = document.getElementById('filter-city')?.value;
-        
-        if (year) this.activeFilters.year = year;
-        if (month) this.activeFilters.month = month;
-        if (country) this.activeFilters.country = country;
-        if (city) this.activeFilters.city = city;
-        
-        // Filter logic
-        this.filteredData = this.filterData(this.originalData, this.activeFilters);
-        
-        console.log('Filtered data:', this.filteredData.length);
-        
-        // Update Callback (Re-render graphs)
-        if (this.onFilterChange) {
-          this.onFilterChange(this.filteredData);
-        }
-        
-        // Removed: updateFilterTags() (As requested to hide ribbon)
-        this.showFilterMessage(`Showing ${this.filteredData.length.toLocaleString()} records`);
-
-      } catch (err) {
-        console.error("Filtering error:", err);
-      } finally {
-        // 3. Restore UI state
-        if (applyBtn) {
-          applyBtn.innerHTML = originalText;
-          applyBtn.style.opacity = '1';
-          applyBtn.style.cursor = 'pointer';
-        }
-        this.isFiltering = false;
-      }
-    }, 50); // Small 50ms delay lets the browser breathe
-  }
 
   filterData(data, filters) {
     // If no filters, return original immediately (fast path)
     if (Object.keys(filters).length === 0) return data;
 
     return data.filter(record => {
+      // Filtre Hôpital (ajouté pour l'interaction ArcGIS)
+      if (filters.Hospital && record.Hospital !== filters.Hospital) return false;
+        
+      
       if (filters.year) {
         const recordYear = new Date(record['Date of Admission']).getFullYear();
         if (recordYear.toString() !== filters.year) return false;
@@ -149,6 +98,73 @@ class FilterManager {
       return true;
     });
   }
+
+// Dans js/filterManager.js
+
+applyFilters() {
+    if (this.isFiltering) return;
+    this.isFiltering = true;
+
+    const applyBtn = document.getElementById('apply-filters');
+    
+    // Petit délai pour laisser le bouton passer en état "Loading" visuellement
+    setTimeout(() => {
+        // Collecte des filtres
+        this.activeFilters = {};
+        const year = document.getElementById('filter-year')?.value;
+        const month = document.getElementById('filter-month')?.value;
+        const country = document.getElementById('filter-country')?.value;
+        const city = document.getElementById('filter-city')?.value;
+        
+        if (year) this.activeFilters.year = year;
+        if (month) this.activeFilters.month = month;
+        if (country) this.activeFilters.country = country;
+        if (city) this.activeFilters.city = city;
+        
+        // Filtrage des données
+        this.filteredData = this.filterData(this.originalData, this.activeFilters);
+        
+        // C'EST CETTE LIGNE QUI RAFRAÎCHIT L'ÉCRAN
+        if (this.onFilterChange) {
+            this.onFilterChange(this.filteredData);
+        }
+
+        this.isFiltering = false;
+        if (applyBtn) {
+            applyBtn.innerHTML = 'Apply Filters';
+            applyBtn.style.opacity = '1';
+        }
+    }, 50);
+}
+
+// js/filterManager.js
+
+updateFilter(key, value) {
+    this.activeFilters[key] = value;
+    this.filteredData = this.filterData(this.originalData, this.activeFilters);
+    
+    // On déclenche le callback qui est dans main.js
+    if (this.onFilterChange) {
+        this.onFilterChange(this.filteredData);
+    }
+}
+
+filterData(data, filters) {
+    if (Object.keys(filters).length === 0) return data;
+
+    return data.filter(record => {
+        // Filtre Hôpital (ajouté pour l'interaction ArcGIS)
+
+        if (filters.Hospital && record.Hospital !== filters.Hospital) return false;        
+        // Filtres existants
+        if (filters.year) {
+            const recordYear = new Date(record['Date of Admission']).getFullYear();
+            if (recordYear.toString() !== filters.year) return false;
+        }
+        // ... gardez le reste de votre logique (month, country, city)
+        return true;
+    });
+}
 
   resetFilters() {
     // Clear inputs

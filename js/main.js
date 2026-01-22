@@ -32,22 +32,37 @@ async function init() {
     console.timeEnd('Data Load');
     console.log('✅ Data loaded:', globalData.length, 'records');
 
-    // Initialize filter manager
-    filterManager.init(globalData, (filteredData) => {
-      console.log('Filter changed, updating visualizations...');
-      // Re-render current tab with filtered data
-      const currentTab = tabManager.getCurrentTab();
-      tabManager.switchTab(currentTab);
-    });
+
+
+// Initialize filter manager
+
+filterManager.init(globalData, (filteredData) => {
+    const currentTab = tabManager.getCurrentTab();
+    
+
+    if (currentTab !== 'geographic') {
+        tabManager.renderCurrentTab();
+    } else {
+        console.log('Filtre appliqué : la carte reste stable, les autres onglets sont prêts.');
+    }
+});
 
     showLoading('Setting up visualizations...');
 
     // Register tabs with filter-aware render functions
+
     tabManager.registerTab('overview', () => {
-      const data = filterManager.getFilteredData();
-      renderOverviewTab(data);
+        const data = filterManager.getFilteredData();
+        d3.select('#overview-content').selectAll('*').remove();
+        renderOverviewTab(data);
     });
-    
+
+    tabManager.registerTab('geographic', () => {
+        const data = filterManager.getFilteredData();
+        d3.select('#geographic-content').selectAll('*').remove();
+        renderGeographicTab(data);
+    });
+        
     tabManager.registerTab('demographics', () => {
       const data = filterManager.getFilteredData();
       renderDemographicsTab(data);
@@ -58,10 +73,7 @@ async function init() {
       renderFinancialTab(data);
     });
     
-    tabManager.registerTab('geographic', () => {
-      const data = filterManager.getFilteredData();
-      renderGeographicTab(data);
-    });
+  
 
     console.log('✅ All tabs registered');
 
@@ -70,12 +82,12 @@ async function init() {
 
     appReady = true;
 
-    console.log('✅ Dashboard initialized successfully!');
+    console.log('Dashboard initialized successfully!');
     hideLoading();
     showSuccessMessage('Dashboard loaded successfully!');
 
   } catch (error) {
-    console.error('❌ Initialization Error:', error);
+    console.error('Initialization Error:', error);
     showError(`Failed to initialize dashboard: ${error.message}`);
   }
 }
@@ -130,6 +142,14 @@ if (document.readyState === 'loading') {
   init();
 }
 
+document.body.addEventListener('click', (e) => {
+    if (e.target && e.target.classList.contains('filter-btn')) {
+        const hospitalName = e.target.getAttribute('data-hospital');
+        if (hospitalName) {
+            applyGlobalFilter(hospitalName);
+        }
+    }
+});
 // =====================================================================
 // Debug Helpers
 // =====================================================================
@@ -137,3 +157,4 @@ window.getDashboardData = () => globalData;
 window.getFilteredData = () => filterManager.getFilteredData();
 window.filterManager = filterManager;
 window.tabManager = tabManager;
+
