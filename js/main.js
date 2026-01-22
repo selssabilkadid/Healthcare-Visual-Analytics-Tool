@@ -36,7 +36,6 @@ async function init() {
 
 
 // Initialize filter manager
-
 filterManager.init(globalData, (filteredData) => {
     const currentTab = tabManager.getCurrentTab();
     
@@ -49,9 +48,7 @@ filterManager.init(globalData, (filteredData) => {
 });
 
     showLoading('Setting up visualizations...');
-
-    // Register tabs with filter-aware render functions
-
+  
     tabManager.registerTab('overview', () => {
         const data = filterManager.getFilteredData();
         d3.select('#overview-content').selectAll('*').remove();

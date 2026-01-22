@@ -40,7 +40,7 @@ class TabManager {
     this.currentTab = tabId;
   }
 
-  // Show/hide tab content and update button active state
+
   _updateVisibility(tabId) {
     // Update buttons
     this.tabButtons.forEach((button, id) => {
@@ -63,7 +63,7 @@ class TabManager {
 
   // Render tab content with lock
   _render(tabId) {
-    if (this.isRendering) return; // prevent overlapping renders
+    if (this.isRendering) return; 
     this.isRendering = true;
 
     requestAnimationFrame(() => {
@@ -73,7 +73,7 @@ class TabManager {
     });
   }
 
-  // Re-render current tab (safe for resize)
+ 
   renderCurrentTab() {
     if (!this.currentTab) return;
     this._render(this.currentTab);

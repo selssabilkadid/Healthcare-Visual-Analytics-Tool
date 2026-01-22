@@ -93,7 +93,6 @@ function initArcGISMap(data) {
                     breakpoint: false
                 },
                 alignment: "auto",
-                // Ensure popup appears above map
                 visibleElements: {
                     closeButton: true
                 }
@@ -106,7 +105,6 @@ function initArcGISMap(data) {
         // Store view globally
         mapView = view;
 
-        // Apply popup theme styling after view loads
         view.when(() => {
             applyPopupTheme(isDark);
         });
@@ -121,7 +119,6 @@ function initArcGISMap(data) {
             const patientCount = records.length;
             const avgBilling = d3.mean(records, d => +d['Billing Amount']);
 
-            // RÉINTÉGRATION DES COULEURS ET TAILLES DYNAMIQUES
             let color = "#c1e7ff"; // Faible (< 15k)
             if (avgBilling > 25000) color = "#FF6B6B"; // Elevé
             else if (avgBilling > 15000) color = "#FFA500"; // Moyen
@@ -155,7 +152,6 @@ function initArcGISMap(data) {
             });
         });
 
-        // Also use MutationObserver as backup
         const observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
                 mutation.addedNodes.forEach(function(node) {
@@ -170,7 +166,6 @@ function initArcGISMap(data) {
             });
         });
 
-        // Observe the entire document for popup additions
         observer.observe(document.body, {
             childList: true,
             subtree: true
