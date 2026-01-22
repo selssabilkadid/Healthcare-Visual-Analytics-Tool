@@ -1,10 +1,5 @@
-// js/dataLoader.js - BROWSER VERSION
-// No imports needed - d3 is loaded globally via <script> tag
-
 /**
  * Load CSV data using D3.js (browser-compatible)
- * @param {string} filePath - Path to CSV file (e.g., './data/healthcare_dataset.csv')
- * @returns {Promise<Array>} - Array of parsed data objects
  */
 export async function loadData(filePath = './data/healthcare_dataset_with_coords.csv') {
   console.log('Loading data from:', filePath);

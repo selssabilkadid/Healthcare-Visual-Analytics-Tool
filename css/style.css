@@ -622,3 +622,223 @@ body {
     width: 100%;
     background-color: #f0f0f0; /* Pour vérifier si la div est bien là */
 }
+
+/* ============ DARK MODE VARIABLES ============ */
+
+[data-theme="dark"] {
+    --primary: #7C8EF9;
+    --primary-dark: #6B7EE8;
+    --secondary: #9065C7;
+    --success: #5ED99C;
+    --warning: #FFBE76;
+    --danger: #FF8B8B;
+    --info: #5FB3F6;
+    
+    --bg-primary: #1A202C;
+    --bg-secondary: #2D3748;
+    --bg-card: #2D3748;
+    
+    --text-primary: #F7FAFC;
+    --text-secondary: #CBD5E0;
+    --text-muted: #718096;
+    
+    --border-color: #4A5568;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* ============ THEME TOGGLE BUTTON ============ */
+
+.theme-toggle {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: var(--bg-primary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-toggle:hover {
+    background: var(--primary);
+    color: white;
+    transform: scale(1.05);
+}
+
+.theme-toggle svg {
+    width: 20px;
+    height: 20px;
+    transition: all 0.3s ease;
+}
+
+/* Sun/Moon Animation */
+.theme-toggle .sun-icon {
+    opacity: 1;
+    transform: rotate(0deg);
+}
+
+.theme-toggle .moon-icon {
+    opacity: 0;
+    transform: rotate(180deg);
+    position: absolute;
+}
+
+[data-theme="dark"] .theme-toggle .sun-icon {
+    opacity: 0;
+    transform: rotate(180deg);
+}
+
+[data-theme="dark"] .theme-toggle .moon-icon {
+    opacity: 1;
+    transform: rotate(0deg);
+}
+
+/* ============ DARK MODE ADJUSTMENTS ============ */
+
+[data-theme="dark"] .filter-select {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .filter-select:hover {
+    border-color: var(--primary);
+}
+
+[data-theme="dark"] .btn-primary {
+    box-shadow: 0 2px 4px rgba(124, 142, 249, 0.3);
+}
+
+[data-theme="dark"] .btn-secondary {
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+    background: var(--bg-secondary);
+    border-color: var(--danger);
+}
+
+[data-theme="dark"] .chart-tooltip {
+    background: rgba(45, 55, 72, 0.95);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .placeholder {
+    background: var(--bg-card);
+}
+
+[data-theme="dark"] .error-message {
+    background: rgba(255, 129, 129, 0.1);
+    border-left-color: var(--danger);
+}
+
+/* Dark mode for filter info banner */
+[data-theme="dark"] .filter-info {
+    background: rgba(124, 142, 249, 0.1) !important;
+    color: var(--primary) !important;
+}
+
+/* Smooth transition for theme changes */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Exclude certain elements from transition */
+.chart-container *,
+svg *,
+.tab-btn::after,
+.metric-card,
+.chart-card {
+    transition: none;
+}
+
+.metric-card,
+.chart-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+/* Force ArcGIS popup to appear ON TOP of the map, not below it */
+.esri-popup {
+    position: absolute !important;
+    z-index: 9999 !important;
+}
+
+.esri-popup--is-docked {
+    position: absolute !important;
+}
+
+.esri-popup__main-container {
+    max-width: 340px;
+}
+
+.esri-view-root {
+    position: relative !important;
+}
+
+/* Ensure popup pointer is visible */
+.esri-popup__pointer {
+    z-index: 10000 !important;
+}
+
+/* Style popup for better appearance */
+.esri-popup__header-title {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.esri-popup__button {
+    cursor: pointer;
+}
+
+/* Dark mode popup adjustments */
+[data-theme="dark"] .esri-popup__main-container {
+    background-color: #2D3748;
+    color: #F7FAFC;
+    border-color: #4A5568;
+}
+
+[data-theme="dark"] .esri-popup__header {
+    background-color: #1A202C;
+    color: #F7FAFC;
+    border-bottom-color: #4A5568;
+}
+
+[data-theme="dark"] .esri-popup__content {
+    background-color: #2D3748;
+    color: #F7FAFC;
+}
+
+[data-theme="dark"] .esri-popup__button {
+    color: #F7FAFC;
+}
+
+[data-theme="dark"] .esri-popup__button:hover {
+    background-color: #4A5568;
+}
+
+/* Light mode popup adjustments */
+[data-theme="light"] .esri-popup__main-container {
+    background-color: #FFFFFF;
+    color: #1A202C;
+    border-color: #E2E8F0;
+}
+
+[data-theme="light"] .esri-popup__header {
+    background-color: #F7FAFC;
+    color: #1A202C;
+    border-bottom-color: #E2E8F0;
+}
+
+[data-theme="light"] .esri-popup__content {
+    background-color: #FFFFFF;
+    color: #1A202C;
+}

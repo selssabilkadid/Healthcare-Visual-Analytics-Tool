@@ -1,5 +1,7 @@
-// tabs/geographicTab.js
+import themeManager from '../utils/themeManager.js';
+
 let mapView = null;
+let currentMap = null;
 
 export async function renderGeographicTab(data) {
     const container = d3.select('#geographic-content');
@@ -39,7 +41,10 @@ export async function renderGeographicTab(data) {
 }
 
 function createLegend(parent) {
+    const isDark = themeManager.isDarkMode();
+    
     const legend = parent.append('div')
+        .attr('class', 'map-legend')
         .style('position', 'absolute')
         .style('bottom', '20px')
         .style('left', '20px')
@@ -50,22 +55,22 @@ function createLegend(parent) {
         .style('z-index', '100');
 
     legend.html(`
-        <h4 style="margin:0 0 8px 0; font-size:13px;">Facturation Moyenne</h4>
+        <h4 style="margin:0 0 8px 0; font-size:13px; color: ${isDark ? '#F7FAFC' : '#1A202C'};">Facturation Moyenne</h4>
         <div style="display:flex; flex-direction:column; gap:5px;">
             <div style="display:flex; align-items:center; gap:8px;">
                 <div style="width:12px; height:12px; border-radius:50%; background:#FF6B6B;"></div>
-                <span style="font-size:11px;"> > 25,000 $</span>
+                <span style="font-size:11px; color: ${isDark ? '#E2E8F0' : '#4A5568'};"> > 25,000 $</span>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
                 <div style="width:12px; height:12px; border-radius:50%; background:#FFA500;"></div>
-                <span style="font-size:11px;"> 15,000 - 25,000 $</span>
+                <span style="font-size:11px; color: ${isDark ? '#E2E8F0' : '#4A5568'};"> 15,000 - 25,000 $</span>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
                 <div style="width:12px; height:12px; border-radius:50%; background:#c1e7ff;"></div>
-                <span style="font-size:11px;"> < 15,000 $</span>
+                <span style="font-size:11px; color: ${isDark ? '#E2E8F0' : '#4A5568'};"> < 15,000 $</span>
             </div>
         </div>
-        <p style="margin:8px 0 0 0; font-size:10px; border-top:1px solid #eee; padding-top:5px; color:#666;">
+        <p style="margin:8px 0 0 0; font-size:10px; border-top:1px solid ${isDark ? '#4A5568' : '#eee'}; padding-top:5px; color:${isDark ? '#A0AEC0' : '#666'};">
             Taille du point = Nombre de patients
         </p>
     `);
@@ -80,7 +85,30 @@ function initArcGISMap(data) {
             container: "viewDiv",
             map: map,
             center: [15.0, 50.0],
-            zoom: 4
+            zoom: 4,
+            popup: {
+                dockEnabled: false,
+                dockOptions: {
+                    buttonEnabled: false,
+                    breakpoint: false
+                },
+                alignment: "auto",
+                // Ensure popup appears above map
+                visibleElements: {
+                    closeButton: true
+                }
+            },
+            ui: {
+                components: ["attribution", "zoom"]
+            }
+        });
+
+        // Store view globally
+        mapView = view;
+
+        // Apply popup theme styling after view loads
+        view.when(() => {
+            applyPopupTheme(isDark);
         });
 
         const graphicsLayer = new GraphicsLayer();
@@ -125,6 +153,27 @@ function initArcGISMap(data) {
                     updateSidePanel(attr);
                 }
             });
+        });
+
+        // Also use MutationObserver as backup
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1) {
+                        const filterBtn = node.querySelector('.hospital-filter-btn');
+                        if (filterBtn && !filterBtn.dataset.listenerAttached) {
+                            attachFilterButtonListener();
+                            applyPopupTheme(themeManager.isDarkMode());
+                        }
+                    }
+                });
+            });
+        });
+
+        // Observe the entire document for popup additions
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
         });
     });
 }

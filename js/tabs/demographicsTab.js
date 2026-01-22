@@ -1,5 +1,3 @@
-// js/tabs/demographicsTab.js - Enhanced with tooltips and fluid layout
-
 const COLORS = {
   gender: { Male: '#6B9BD1', Female: '#E89AC7' },
   ageGroup: { '0-18': '#A8D5BA', '19-40': '#7FB3D5', '41-65': '#9B7EBD', '65+': '#E89B9B' },

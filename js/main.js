@@ -3,12 +3,12 @@
 import { loadData } from './dataLoader.js';
 import tabManager from './utils/tabManager.js';
 import filterManager from './utils/filterManager.js';
+import themeManager from './utils/themeManager.js';
 
 // Import visualization modules
 import { renderOverviewTab } from './tabs/overviewTab.js';
 import { renderDemographicsTab } from './tabs/demographicsTab.js';
 import { renderFinancialTab } from './tabs/financialTab.js';
-// Note: Geographic tab is defined locally below as a placeholder since no file was provided
 import { renderGeographicTab } from './tabs/geographicTab.js';
 
 let globalData = null;
@@ -21,8 +21,9 @@ async function init() {
   console.log('=== Healthcare Dashboard Initialization ===');
 
   try {
+    themeManager.init();
     if (typeof d3 === 'undefined') throw new Error('D3.js is not loaded!');
-    console.log('✅ D3.js version:', d3.version);
+    console.log('D3.js version:', d3.version);
 
     showLoading('Loading healthcare dataset...');
 
@@ -30,7 +31,7 @@ async function init() {
     console.time('Data Load');
     globalData = await loadData('./data/healthcare_dataset_with_coords.csv');
     console.timeEnd('Data Load');
-    console.log('✅ Data loaded:', globalData.length, 'records');
+    console.log('Data loaded:', globalData.length, 'records');
 
 
 
@@ -75,7 +76,7 @@ filterManager.init(globalData, (filteredData) => {
     
   
 
-    console.log('✅ All tabs registered');
+    console.log('All tabs registered');
 
     // Initialize tab manager with overview as default
     tabManager.init('overview');
@@ -128,7 +129,7 @@ function showSuccessMessage(message) {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     z-index: 9999; font-size: 0.875rem; font-weight: 500;
   `;
-  successDiv.textContent = '✅ ' + message;
+  successDiv.textContent = message;
   document.body.appendChild(successDiv);
   setTimeout(() => successDiv.remove(), 3000);
 }

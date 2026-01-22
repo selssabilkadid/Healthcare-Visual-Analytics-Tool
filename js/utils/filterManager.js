@@ -1,12 +1,10 @@
-// js/filterManager.js - Optimized for performance
-
 class FilterManager {
   constructor() {
     this.activeFilters = {};
     this.originalData = null;
     this.filteredData = null;
     this.onFilterChange = null;
-    this.isFiltering = false; // Prevent double clicks
+    this.isFiltering = false;
   }
 
   init(data, onFilterChangeCallback) {
@@ -23,7 +21,6 @@ class FilterManager {
     const countries = [...new Set(data.map(d => d.Country).filter(Boolean))].sort();
     const countrySelect = document.getElementById('filter-country');
     if (countrySelect) {
-      // Clear existing options first to prevent duplicates on re-init
       countrySelect.innerHTML = '<option value="">All Countries</option>';
       countries.forEach(country => {
         const option = document.createElement('option');
@@ -44,13 +41,25 @@ class FilterManager {
         citySelect.appendChild(option);
       });
     }
+
+    // Add Hospital filter options
+    const hospitals = [...new Set(data.map(d => d.Hospital).filter(Boolean))].sort();
+    const hospitalSelect = document.getElementById('filter-hospital');
+    if (hospitalSelect) {
+      hospitalSelect.innerHTML = '<option value="">All Hospitals</option>';
+      hospitals.forEach(hospital => {
+        const option = document.createElement('option');
+        option.value = hospital;
+        option.textContent = hospital;
+        hospitalSelect.appendChild(option);
+      });
+    }
   }
 
   setupEventListeners() {
     const applyBtn = document.getElementById('apply-filters');
     const resetBtn = document.getElementById('reset-filters');
     
-    // Remove old listeners to prevent stacking if init is called twice
     const newApply = applyBtn?.cloneNode(true);
     const newReset = resetBtn?.cloneNode(true);
 
@@ -64,7 +73,6 @@ class FilterManager {
       newReset.addEventListener('click', () => this.resetFilters());
     }
 
-    // Apply on Enter
     const selects = document.querySelectorAll('.filter-select');
     selects.forEach(select => {
       select.addEventListener('keypress', (e) => {
@@ -76,7 +84,6 @@ class FilterManager {
 
 
   filterData(data, filters) {
-    // If no filters, return original immediately (fast path)
     if (Object.keys(filters).length === 0) return data;
 
     return data.filter(record => {
@@ -94,6 +101,7 @@ class FilterManager {
       }
       if (filters.country && record.Country !== filters.country) return false;
       if (filters.city && record.City !== filters.city) return false;
+      if (filters.hospital && record.Hospital !== filters.hospital) return false;
       
       return true;
     });
@@ -167,8 +175,7 @@ filterData(data, filters) {
 }
 
   resetFilters() {
-    // Clear inputs
-    ['filter-year', 'filter-month', 'filter-country', 'filter-city'].forEach(id => {
+    ['filter-year', 'filter-month', 'filter-country', 'filter-city', 'filter-hospital'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
     });
@@ -176,7 +183,6 @@ filterData(data, filters) {
     this.activeFilters = {};
     this.filteredData = this.originalData;
     
-    // Trigger callback
     if (this.onFilterChange) {
       this.onFilterChange(this.filteredData);
     }
@@ -193,7 +199,6 @@ filterData(data, filters) {
     msg.textContent = message;
     document.body.appendChild(msg);
     
-    // Remove after 3 seconds
     setTimeout(() => {
       msg.style.opacity = '0';
       msg.style.transform = 'translateY(10px)';
