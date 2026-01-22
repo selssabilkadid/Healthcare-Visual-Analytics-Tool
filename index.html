@@ -9,8 +9,7 @@
     <!-- D3.js -->
     <script src="./bib/d3.v7.min.js"></script>
     <script src="https://js.arcgis.com/4.29/"></script>
-
-    <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css">
+    
     <!-- Styles -->
     <link rel="stylesheet" href="css/style.css">
     
@@ -73,18 +72,21 @@
             </div>
             
             <div class="header-right">
-                <button class="icon-btn" title="Search">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="2"/>
-                        <path d="M14 14L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <button id="theme-toggle" class="theme-toggle" title="Toggle Dark/Light Mode">
+                    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"/>
+                        <line x1="12" y1="1" x2="12" y2="3"/>
+                        <line x1="12" y1="21" x2="12" y2="23"/>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                        <line x1="1" y1="12" x2="3" y2="12"/>
+                        <line x1="21" y1="12" x2="23" y2="12"/>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
                     </svg>
-                </button>
-                <button class="icon-btn" title="Notifications">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M10 2C7.79 2 6 3.79 6 6V10L4 12V14H16V12L14 10V6C14 3.79 12.21 2 10 2Z" stroke="currentColor" stroke-width="1.5"/>
-                        <path d="M9 17C9 17.55 9.45 18 10 18C10.55 18 11 17.55 11 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
                     </svg>
-                    <span class="notification-badge">3</span>
                 </button>
             </div>
         </header>
