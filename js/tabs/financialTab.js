@@ -1,3 +1,4 @@
+// js/tabs/demographicsTab.js - Enhanced with tooltips and fluid layout
 
 const COLORS = {
   insurance: {
@@ -34,10 +35,10 @@ export function renderFinancialTab(data) {
   const chartsGrid = layout.append('div')
     .attr('class', 'charts-grid-compact')
     .style('display', 'grid')
-    .style('grid-template-columns', 'repeat(2, 1fr)') 
+    .style('grid-template-columns', 'repeat(2, 1fr)') // Keep side-by-side
     .style('gap', '1rem')
     .style('margin-top', '1.5rem')
-    .style('padding-bottom', '2rem');
+    .style('padding-bottom', '2rem'); // Add padding at bottom for breathing room
 
   // Render all charts with shared tooltip logic
   renderCostDistribution(chartsGrid, agg);
@@ -47,7 +48,8 @@ export function renderFinancialTab(data) {
   console.timeEnd('Financial Tab Render');
 }
 
-
+// --- Helper: Shared Tooltip ---
+// Prevents creating multiple tooltip divs in the DOM and ensures styling
 function getTooltip() {
   let tooltip = d3.select('#shared-d3-tooltip');
   
@@ -70,6 +72,7 @@ function getTooltip() {
   return tooltip;
 }
 
+// Pre-aggregate all data
 function aggregateData(data) {
   const total = data.length;
   const uniquePatients = new Set(data.map(d => d.Name)).size;
@@ -466,7 +469,9 @@ function renderAnnualBillingTrend(container, agg) {
       .attr('d', line);
   });
 
+  // --- INTERACTIVITÉ AVANCÉE : OVERLAY POUR LE HOVER ---
   
+  // Ligne verticale de focus
   const focusLine = svg.append('line')
     .attr('y1', 0)
     .attr('y2', height)
@@ -475,12 +480,14 @@ function renderAnnualBillingTrend(container, agg) {
     .attr('stroke-dasharray', '4,4')
     .style('opacity', 0);
 
+  // Overlay invisible pour capturer les mouvements de souris sur toute la zone
   svg.append('rect')
     .attr('width', width)
     .attr('height', height)
     .attr('fill', 'none')
     .attr('pointer-events', 'all')
     .on('mousemove', function(event) {
+      // Trouver le mois le plus proche de la souris
       const [mouseX] = d3.pointer(event);
       const index = Math.round((mouseX / width) * (months.length - 1));
       const currentMonth = months[index];
@@ -488,6 +495,7 @@ function renderAnnualBillingTrend(container, agg) {
 
       focusLine.attr('x1', xPos).attr('x2', xPos).style('opacity', 1);
 
+      // Préparer le contenu du tooltip avec toutes les années pour ce mois
       let tooltipHtml = `<div style="font-weight:bold; margin-bottom:8px; border-bottom:1px solid #eee;">${currentMonth} Comparison</div>`;
       
       years.forEach(year => {
@@ -519,6 +527,7 @@ function renderAnnualBillingTrend(container, agg) {
     .call(g => g.select('.domain').style('stroke', '#f1f5f9'))
     .selectAll('text').style('font-size', '0.75rem').style('fill', '#94a3b8').attr('dy', '15px');
 
+  // Légende simple en bas (sans répétition de détails pour garder le Data-Ink ratio bas)
   const legend = section.append('div').style('display', 'flex').style('justify-content', 'center').style('gap', '15px').style('margin-top', '15px');
   years.forEach(year => {
     const item = legend.append('div').style('display', 'flex').style('align-items', 'center').style('gap', '5px');
