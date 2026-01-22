@@ -1,5 +1,3 @@
-// js/utils/themeManager.js - Dark/Light mode toggle
-
 class ThemeManager {
   constructor() {
     this.currentTheme = 'light';
@@ -31,7 +29,7 @@ class ThemeManager {
       }
     });
 
-    console.log('✅ Theme Manager initialized');
+    console.log('Theme Manager initialized');
   }
 
   /**
@@ -83,6 +81,11 @@ class ThemeManager {
     
     // Update toggle button state
     this.updateToggleButton(theme);
+    
+    // Update map theme if map is loaded
+    if (typeof window.updateMapTheme === 'function') {
+      window.updateMapTheme();
+    }
     
     console.log(`Theme changed to: ${theme}`);
   }

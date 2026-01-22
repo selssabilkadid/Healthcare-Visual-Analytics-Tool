@@ -1,12 +1,10 @@
-// js/filterManager.js - Optimized for performance
-
 class FilterManager {
   constructor() {
     this.activeFilters = {};
     this.originalData = null;
     this.filteredData = null;
     this.onFilterChange = null;
-    this.isFiltering = false; // Prevent double clicks
+    this.isFiltering = false;
   }
 
   init(data, onFilterChangeCallback) {
@@ -23,7 +21,6 @@ class FilterManager {
     const countries = [...new Set(data.map(d => d.Country).filter(Boolean))].sort();
     const countrySelect = document.getElementById('filter-country');
     if (countrySelect) {
-      // Clear existing options first to prevent duplicates on re-init
       countrySelect.innerHTML = '<option value="">All Countries</option>';
       countries.forEach(country => {
         const option = document.createElement('option');
@@ -44,13 +41,25 @@ class FilterManager {
         citySelect.appendChild(option);
       });
     }
+
+    // Add Hospital filter options
+    const hospitals = [...new Set(data.map(d => d.Hospital).filter(Boolean))].sort();
+    const hospitalSelect = document.getElementById('filter-hospital');
+    if (hospitalSelect) {
+      hospitalSelect.innerHTML = '<option value="">All Hospitals</option>';
+      hospitals.forEach(hospital => {
+        const option = document.createElement('option');
+        option.value = hospital;
+        option.textContent = hospital;
+        hospitalSelect.appendChild(option);
+      });
+    }
   }
 
   setupEventListeners() {
     const applyBtn = document.getElementById('apply-filters');
     const resetBtn = document.getElementById('reset-filters');
     
-    // Remove old listeners to prevent stacking if init is called twice
     const newApply = applyBtn?.cloneNode(true);
     const newReset = resetBtn?.cloneNode(true);
 
@@ -64,7 +73,6 @@ class FilterManager {
       newReset.addEventListener('click', () => this.resetFilters());
     }
 
-    // Apply on Enter
     const selects = document.querySelectorAll('.filter-select');
     selects.forEach(select => {
       select.addEventListener('keypress', (e) => {
@@ -80,46 +88,40 @@ class FilterManager {
     const applyBtn = document.getElementById('apply-filters');
     const originalText = applyBtn ? applyBtn.innerHTML : 'Apply';
     
-    // 1. Show Loading State immediately
     if (applyBtn) {
-      applyBtn.innerHTML = '⏳ Filtering...';
+      applyBtn.innerHTML = 'Filtering...';
       applyBtn.style.opacity = '0.7';
       applyBtn.style.cursor = 'wait';
     }
 
-    // 2. Use setTimeout to allow the UI to update BEFORE the heavy filtering starts
-    // This fixes the "freeze" and the tab render issues
     setTimeout(() => {
       try {
-        // Collect values
         this.activeFilters = {};
         const year = document.getElementById('filter-year')?.value;
         const month = document.getElementById('filter-month')?.value;
         const country = document.getElementById('filter-country')?.value;
         const city = document.getElementById('filter-city')?.value;
+        const hospital = document.getElementById('filter-hospital')?.value;
         
         if (year) this.activeFilters.year = year;
         if (month) this.activeFilters.month = month;
         if (country) this.activeFilters.country = country;
         if (city) this.activeFilters.city = city;
+        if (hospital) this.activeFilters.hospital = hospital;
         
-        // Filter logic
         this.filteredData = this.filterData(this.originalData, this.activeFilters);
         
         console.log('Filtered data:', this.filteredData.length);
         
-        // Update Callback (Re-render graphs)
         if (this.onFilterChange) {
           this.onFilterChange(this.filteredData);
         }
         
-        // Removed: updateFilterTags() (As requested to hide ribbon)
         this.showFilterMessage(`Showing ${this.filteredData.length.toLocaleString()} records`);
 
       } catch (err) {
         console.error("Filtering error:", err);
       } finally {
-        // 3. Restore UI state
         if (applyBtn) {
           applyBtn.innerHTML = originalText;
           applyBtn.style.opacity = '1';
@@ -127,11 +129,10 @@ class FilterManager {
         }
         this.isFiltering = false;
       }
-    }, 50); // Small 50ms delay lets the browser breathe
+    }, 50);
   }
 
   filterData(data, filters) {
-    // If no filters, return original immediately (fast path)
     if (Object.keys(filters).length === 0) return data;
 
     return data.filter(record => {
@@ -145,14 +146,31 @@ class FilterManager {
       }
       if (filters.country && record.Country !== filters.country) return false;
       if (filters.city && record.City !== filters.city) return false;
+      if (filters.hospital && record.Hospital !== filters.hospital) return false;
       
       return true;
     });
   }
 
+  // NEW METHOD: Programmatically set a filter from external components
+  setHospitalFilter(hospitalName) {
+    const hospitalSelect = document.getElementById('filter-hospital');
+    if (hospitalSelect) {
+      hospitalSelect.value = hospitalName;
+    }
+    
+    this.activeFilters.hospital = hospitalName;
+    this.filteredData = this.filterData(this.originalData, this.activeFilters);
+    
+    if (this.onFilterChange) {
+      this.onFilterChange(this.filteredData);
+    }
+    
+    this.showFilterMessage(`Filtered by hospital: ${hospitalName}`);
+  }
+
   resetFilters() {
-    // Clear inputs
-    ['filter-year', 'filter-month', 'filter-country', 'filter-city'].forEach(id => {
+    ['filter-year', 'filter-month', 'filter-country', 'filter-city', 'filter-hospital'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
     });
@@ -160,7 +178,6 @@ class FilterManager {
     this.activeFilters = {};
     this.filteredData = this.originalData;
     
-    // Trigger callback
     if (this.onFilterChange) {
       this.onFilterChange(this.filteredData);
     }
@@ -177,7 +194,6 @@ class FilterManager {
     msg.textContent = message;
     document.body.appendChild(msg);
     
-    // Remove after 3 seconds
     setTimeout(() => {
       msg.style.opacity = '0';
       msg.style.transform = 'translateY(10px)';

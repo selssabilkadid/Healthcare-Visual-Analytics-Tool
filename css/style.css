@@ -766,3 +766,79 @@ svg *,
 .chart-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+/* Force ArcGIS popup to appear ON TOP of the map, not below it */
+.esri-popup {
+    position: absolute !important;
+    z-index: 9999 !important;
+}
+
+.esri-popup--is-docked {
+    position: absolute !important;
+}
+
+.esri-popup__main-container {
+    max-width: 340px;
+}
+
+.esri-view-root {
+    position: relative !important;
+}
+
+/* Ensure popup pointer is visible */
+.esri-popup__pointer {
+    z-index: 10000 !important;
+}
+
+/* Style popup for better appearance */
+.esri-popup__header-title {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.esri-popup__button {
+    cursor: pointer;
+}
+
+/* Dark mode popup adjustments */
+[data-theme="dark"] .esri-popup__main-container {
+    background-color: #2D3748;
+    color: #F7FAFC;
+    border-color: #4A5568;
+}
+
+[data-theme="dark"] .esri-popup__header {
+    background-color: #1A202C;
+    color: #F7FAFC;
+    border-bottom-color: #4A5568;
+}
+
+[data-theme="dark"] .esri-popup__content {
+    background-color: #2D3748;
+    color: #F7FAFC;
+}
+
+[data-theme="dark"] .esri-popup__button {
+    color: #F7FAFC;
+}
+
+[data-theme="dark"] .esri-popup__button:hover {
+    background-color: #4A5568;
+}
+
+/* Light mode popup adjustments */
+[data-theme="light"] .esri-popup__main-container {
+    background-color: #FFFFFF;
+    color: #1A202C;
+    border-color: #E2E8F0;
+}
+
+[data-theme="light"] .esri-popup__header {
+    background-color: #F7FAFC;
+    color: #1A202C;
+    border-bottom-color: #E2E8F0;
+}
+
+[data-theme="light"] .esri-popup__content {
+    background-color: #FFFFFF;
+    color: #1A202C;
+}

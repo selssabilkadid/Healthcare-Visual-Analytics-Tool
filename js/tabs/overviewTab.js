@@ -1,6 +1,6 @@
 import filterManager from '../utils/filterManager.js';
 
-// Categorical colors stay constant across themes for data consistency
+// Categorical colors 
 const COLORS = {
   testResults: {
     'Normal': '#48BB78',
