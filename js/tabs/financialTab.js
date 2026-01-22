@@ -23,7 +23,7 @@ export function renderFinancialTab(data) {
 
   const agg = cachedAggregations;
 
-  // Create layout - REMOVED fixed height and overflow to prevent internal scrolling
+  // Create layout
   const layout = container.append('div')
     .attr('class', 'financial-layout-compact')
     .style('width', '100%'); // Ensure full width usage
@@ -133,74 +133,43 @@ function aggregateData(data) {
 
 
 function renderSummaryCards(container, agg, data) {
-  const kpi = agg.kpis;
+  const  kpi = agg.kpis;
   
-  // Added a 4th card (Total Patients) to complete the 4-column grid layout
   const cards = [
     { title: 'Total Revenue', value: `$${kpi.totalRevenue.toLocaleString()}`, subtitle: 'Normal Bills', icon: '💰', color: '#667EEA' },
     { title: 'Total Refunds', value: `$${kpi.totalRefunds.toLocaleString()}`, subtitle: 'Reimbursements', icon: '🔄', color: '#FF6B6B' },
-    { title: 'Avg Visit Cost', value: `$${kpi.avgCost.toLocaleString(undefined, {maximumFractionDigits: 0})}`, subtitle: 'Per patient', icon: '💳', color: '#FFA500' },
-    { title: 'Patient Volume', value: kpi.totalPatients.toLocaleString(), subtitle: 'Total Encounters', icon: '👥', color: '#4ECDC4' }
+    { title: 'Avg Cost per Visit', value: `$${kpi.avgCost.toFixed(0)}`, subtitle: 'Per patient', icon: '💳', color: '#FFA500' },
   ];
 
+
   const cardContainer = container.append('div')
-    .attr('class', 'summary-cards-grid')
+    .attr('class', 'summary-cards-compact')
     .style('display', 'grid')
-    .style('grid-template-columns', 'repeat(4, 1fr)')
-    .style('gap', '1.25rem')
-    .style('margin-bottom', '1.5rem');
+    .style('grid-template-columns', 'repeat(3, 1fr)')
+    .style('gap', '1.5rem')
+    .style('margin-bottom', '1rem');
 
   const cardDivs = cardContainer.selectAll('.metric-card')
     .data(cards).enter().append('div')
-    .attr('class', 'chart-card') // Using chart-card class for consistent borders/shadows
-    .style('padding', '1.25rem')
-    .style('display', 'flex')
-    .style('align-items', 'center')
-    .style('gap', '1rem')
-    .style('background', '#fff')
-    .style('border-radius', '12px')
-    .style('box-shadow', '0 1px 3px rgba(0,0,0,0.1)');
+    .attr('class', 'metric-card')
+    .style('padding', '1.5rem');
 
-  // Consistent Icon Styling
-  cardDivs.append('div')
-    .attr('class', 'metric-icon')
-    .style('width', '48px')
-    .style('height', '48px')
-    .style('display', 'flex')
-    .style('align-items', 'center')
-    .style('justify-content', 'center')
-    .style('border-radius', '10px')
-    .style('font-size', '1.5rem')
-    .style('flex-shrink', '0')
-    .style('background', d => `${d.color}15`) // 15% opacity background
+  cardDivs.append('div').attr('class', 'metric-icon')
+    .style('width', '56px')
+    .style('height', '56px')
+    .style('font-size', '1.75rem')
+    .style('background', d => `${d.color}15`)
     .text(d => d.icon);
 
-  const cardContent = cardDivs.append('div')
-    .attr('class', 'metric-content')
-    .style('overflow', 'hidden');
-
-  cardContent.append('div')
-    .attr('class', 'metric-title')
-    .style('font-size', '0.75rem')
-    .style('text-transform', 'uppercase')
-    .style('letter-spacing', '0.025em')
-    .style('font-weight', '600')
-    .style('color', '#64748b')
-    .text(d => d.title);
-
+  const cardContent = cardDivs.append('div').attr('class', 'metric-content');
+  cardContent.append('div').attr('class', 'metric-title').text(d => d.title);
   cardContent.append('div')
     .attr('class', 'metric-value')
-    .style('font-size', '1.5rem')
-    .style('font-weight', '700')
-    .style('color', '#1e293b')
-    .style('line-height', '1.2')
+    .style('font-size', '1.875rem')
     .text(d => d.value);
-
   cardContent.append('div')
     .attr('class', 'metric-subtitle')
-    .style('font-size', '0.75rem')
-    .style('color', '#94a3b8')
-    .style('margin-top', '2px')
+    .style('font-size', '0.8125rem')
     .text(d => d.subtitle);
 }
 
@@ -214,7 +183,6 @@ function renderCostDistribution(container, agg) {
   header.append('h3')
     .style('font-size', '0.95rem')
     .style('margin-bottom', '0.25rem')
-    .style('color', '#1e293b')
     .text('Cost Distribution');
   header.append('p')
     .style('font-size', '0.8rem')
@@ -259,7 +227,7 @@ function renderCostDistribution(container, agg) {
   // Grille horizontale subtile
   svg.append('g')
     .attr('class', 'grid')
-    .style('color', '#f1f5f9') 
+    .style('color', '--text-muted') 
     .call(d3.axisLeft(y).tickSize(-width).tickFormat('').ticks(5))
     .call(g => g.select('.domain').remove());
 
@@ -311,7 +279,7 @@ function renderCostDistribution(container, agg) {
     .call(d3.axisBottom(x));
     
   xAxis.selectAll('text')
-    .style('color', '#64748b')
+    .style('color', '--text-muted')
     .attr('transform', 'rotate(-40)') // Rotation un peu plus forte pour l'espace
     .style('text-anchor', 'end')
     .style('font-size', '0.7rem')
@@ -322,7 +290,7 @@ function renderCostDistribution(container, agg) {
 
   const yAxis = svg.append('g').call(d3.axisLeft(y).ticks(5));
   yAxis.select('.domain').remove();
-  yAxis.selectAll('text').style('color', '#94a3b8').style('font-size', '0.7rem');
+  yAxis.selectAll('text').style('color', '--text-muted').style('font-size', '0.7rem');
 }
 function renderInsuranceCostAnalysis(container, agg) {
   const section = container.append('div')
@@ -401,7 +369,7 @@ function renderInsuranceCostAnalysis(container, agg) {
     .style('font-size', '0.8rem')
     .call(g => g.select('.domain').remove())
     .selectAll('text')
-    .style('color', '#334155')
+    .style('color', '--text-muted')
     .style('font-weight', '500');
 
   // Labels de valeurs (Agrandis et plus lisibles)
@@ -414,7 +382,7 @@ function renderInsuranceCostAnalysis(container, agg) {
     .attr('dy', '0.35em')
     .style('font-size', '0.75rem')
     .style('font-weight', '700')
-    .style('fill', '#64748b')
+    .style('fill', '#acafb5')
     .text(d => `$${(d.totalAmount / 1000).toFixed(0)}k`);
 }
 function renderAnnualBillingTrend(container, agg) {
@@ -524,8 +492,8 @@ function renderAnnualBillingTrend(container, agg) {
   svg.append('g')
     .attr('transform', `translate(0,${height})`)
     .call(d3.axisBottom(x).tickSize(0))
-    .call(g => g.select('.domain').style('stroke', '#f1f5f9'))
-    .selectAll('text').style('font-size', '0.75rem').style('fill', '#94a3b8').attr('dy', '15px');
+    .call(g => g.select('.domain').style('stroke', '--text-muted'))
+    .selectAll('text').style('font-size', '0.75rem').style('fill', '--text-muted').attr('dy', '15px');
 
   // Légende simple en bas (sans répétition de détails pour garder le Data-Ink ratio bas)
   const legend = section.append('div').style('display', 'flex').style('justify-content', 'center').style('gap', '15px').style('margin-top', '15px');
@@ -552,7 +520,7 @@ function renderAnnual(container, agg) {
     .style('margin-bottom', '0.5rem');
   header.append('p')
     .style('font-size', '0.9rem')
-    .style('color', '#64748b')
+    .style('color', '--text-muted')
     .style('margin-bottom', '1.5rem')
     .text('Detailed revenue distribution across all geographic regions ');
 

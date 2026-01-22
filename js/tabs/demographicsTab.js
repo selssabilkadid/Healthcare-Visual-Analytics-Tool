@@ -251,21 +251,6 @@ function renderGenderChart(container, genderData, total) {
       tooltip.style('opacity', 0);
     });
 
-  // Center text
-  svg.append('text')
-    .attr('text-anchor', 'middle')
-    .attr('dy', '-0.3em')
-    .style('font-size', '1.5rem')
-    .style('font-weight', '700')
-    .text(total.toLocaleString());
-
-  svg.append('text')
-    .attr('text-anchor', 'middle')
-    .attr('dy', '1em')
-    .style('font-size', '0.75rem')
-    .style('fill', '#718096')
-    .text('Patients');
-
   // Compact legend
   const legend = section.append('div')
     .attr('class', 'chart-legend')

@@ -49,15 +49,6 @@ function getTooltip() {
   return tooltip;
 }
 
-// --- Helper: Format Large Currency ---
-function formatCurrency(value) {
-  if (value >= 1000000) {
-    return '$' + (value / 1000000).toFixed(1) + 'M';
-  } else if (value >= 1000) {
-    return '$' + (value / 1000).toFixed(0) + 'k';
-  }
-  return '$' + value.toLocaleString();
-}
 
 export function renderOverviewTab(data) {
   console.log('Rendering Overview Tab with', data.length, 'records');
@@ -77,7 +68,7 @@ export function renderOverviewTab(data) {
       .style('color', '#2C5282')
       .style('font-size', '0.875rem')
       .html(`
-        📊 Showing <strong>${stats.filtered.toLocaleString()}</strong> of 
+        Showing <strong>${stats.filtered.toLocaleString()}</strong> of 
         <strong>${stats.total.toLocaleString()}</strong> records 
         (${stats.activeFilters} filter${stats.activeFilters > 1 ? 's' : ''} active)
       `);
@@ -93,7 +84,7 @@ export function renderOverviewTab(data) {
     .style('font-size', '1.25rem')
     .style('font-weight', '700')
     .style('margin-bottom', '1.5rem')
-    .style('color', '#2d3748')
+    .style('color', 'var(--primary)')
     .text('Key Insights');
 
   // Charts Grid
@@ -116,85 +107,44 @@ export function renderOverviewTab(data) {
 function renderSummaryCards(container, data) {
   const totalBilling = d3.sum(data, d => d['Billing Amount']);
   const avgAge = d3.mean(data, d => d.Age);
-  const avgLengthOfStay = d3.mean(data, d => d['Length of Stay']);
+  const avgLength = d3.mean(data, d => d['Length of Stay']);
 
   const metrics = [
-    {
-      title: 'Total Patients',
-      value: data.length.toLocaleString(),
-      subtitle: 'Active Records',
-      icon: '👥',
-      color: '#667EEA'
-    },
-    {
-      title: 'Total Billing',
-      value: formatCurrency(totalBilling),
-      subtitle: 'Revenue Generated',
-      icon: '💰',
-      color: '#48BB78'
-    },
-    {
-      title: 'Average Age',
-      value: avgAge.toFixed(1),
-      subtitle: 'Years',
-      icon: '🎂',
-      color: '#9F7AEA'
-    },
-    {
-      title: 'Avg Length of Stay',
-      value: avgLengthOfStay.toFixed(1),
-      subtitle: 'Days',
-      icon: '🏥',
-      color: '#4ECDC4'
-    }
+    { title: 'Total Patients', value: data.length.toLocaleString(), icon: '👥', color: 'var(--primary)' },
+    { title: 'Total Billing', value: `$${(totalBilling/1e6).toFixed(2)}M`, icon: '💰', color: 'var(--success)' },
+    { title: 'Average Age', value: avgAge.toFixed(1), icon: '🎂', color: 'var(--secondary)' },
+    { title: 'Avg Length of Stay', value: avgLength.toFixed(1) + ' days', icon: '🏥', color: 'var(--info)' }
   ];
 
-  const metricsGrid = container.append('div')
-    .attr('class', 'metrics-grid')
-    .style('display', 'grid')
-    .style('grid-template-columns', 'repeat(auto-fit, minmax(200px, 1fr))')
-    .style('gap', '1.5rem');
+  const grid = container.append('div')
+    .attr('class', 'metrics-grid');
 
-  const cards = metricsGrid.selectAll('.metric-card')
-    .data(metrics).enter().append('div')
-    .attr('class', 'metric-card')
-    .style('padding', '1.5rem')
-    .style('background', 'white')
-    .style('border-radius', '12px')
-    .style('box-shadow', '0 2px 4px rgba(0,0,0,0.05)');
+  const cards = grid.selectAll('.metric-card')
+    .data(metrics)
+    .enter()
+    .append('div')
+    .attr('class', 'metric-card');
 
+  // Icon
   cards.append('div')
     .attr('class', 'metric-icon')
-    .style('width', '48px')
-    .style('height', '48px')
-    .style('display', 'flex')
-    .style('align-items', 'center')
-    .style('justify-content', 'center')
-    .style('border-radius', '10px')
-    .style('font-size', '1.5rem')
-    .style('margin-bottom', '1rem')
-    .style('background', d => d.color + '20')
+    .style('background', d => `color-mix(in srgb, ${d.color} 15%, transparent)`)
     .style('color', d => d.color)
     .text(d => d.icon);
 
-  const content = cards.append('div').attr('class', 'metric-content');
+  // Content
+  const content = cards.append('div')
+    .attr('class', 'metric-content');
 
-  content.append('div').attr('class', 'metric-title')
-    .style('font-size', '0.875rem')
-    .style('color', '#718096')
+  content.append('div')
+    .attr('class', 'metric-title')
     .text(d => d.title);
 
-  content.append('div').attr('class', 'metric-value')
-    .style('font-size', '1.5rem')
-    .style('font-weight', '700')
-    .style('color', '#2D3748')
+  content.append('div')
+    .attr('class', 'metric-value')
     .text(d => d.value);
-
-  content.append('div').attr('class', 'metric-subtitle')
-    .style('font-size', '0.75rem')
-    .style('color', '#A0AEC0')
-    .text(d => d.subtitle);
 }
+
 
 // ============ 1. TEST RESULTS (Donut) ============
 function renderTestResultsDistribution(container, data) {
@@ -237,11 +187,6 @@ function renderTestResultsDistribution(container, data) {
       d3.select(this).transition().duration(200).attr('d', arc);
       tooltip.style('opacity', 0);
     });
-
-  svg.append('text').attr('text-anchor', 'middle').attr('dy', '-0.3em')
-    .style('font-size', '1.5rem').style('font-weight', '700').text(data.length.toLocaleString());
-  svg.append('text').attr('text-anchor', 'middle').attr('dy', '1em')
-    .style('font-size', '0.75rem').style('fill', '#718096').text('Total Tests');
 
   const legend = card.append('div').attr('class', 'chart-legend').style('margin-top', '1rem');
   testData.forEach(d => {
