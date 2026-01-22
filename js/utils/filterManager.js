@@ -42,7 +42,6 @@ class FilterManager {
       });
     }
 
-    // Add Hospital filter options
     const hospitals = [...new Set(data.map(d => d.Hospital).filter(Boolean))].sort();
     const hospitalSelect = document.getElementById('filter-hospital');
     if (hospitalSelect) {
@@ -83,96 +82,98 @@ class FilterManager {
 
 
 
-  filterData(data, filters) {
-    if (Object.keys(filters).length === 0) return data;
-
-    return data.filter(record => {
-      // Filtre Hôpital (ajouté pour l'interaction ArcGIS)
-      if (filters.Hospital && record.Hospital !== filters.Hospital) return false;
-        
-      
-      if (filters.year) {
-        const recordYear = new Date(record['Date of Admission']).getFullYear();
-        if (recordYear.toString() !== filters.year) return false;
-      }
-      if (filters.month) {
-        const recordMonth = new Date(record['Date of Admission']).getMonth() + 1;
-        if (recordMonth.toString() !== filters.month) return false;
-      }
-      if (filters.country && record.Country !== filters.country) return false;
-      if (filters.city && record.City !== filters.city) return false;
-      if (filters.hospital && record.Hospital !== filters.hospital) return false;
-      
-      return true;
-    });
-  }
-
-// Dans js/filterManager.js
-
 applyFilters() {
     if (this.isFiltering) return;
     this.isFiltering = true;
 
     const applyBtn = document.getElementById('apply-filters');
     
-    // Petit délai pour laisser le bouton passer en état "Loading" visuellement
     setTimeout(() => {
-        // Collecte des filtres
-        this.activeFilters = {};
-        const year = document.getElementById('filter-year')?.value;
-        const month = document.getElementById('filter-month')?.value;
-        const country = document.getElementById('filter-country')?.value;
-        const city = document.getElementById('filter-city')?.value;
-        
-        if (year) this.activeFilters.year = year;
-        if (month) this.activeFilters.month = month;
-        if (country) this.activeFilters.country = country;
-        if (city) this.activeFilters.city = city;
-        
-        // Filtrage des données
-        this.filteredData = this.filterData(this.originalData, this.activeFilters);
-        
-        // C'EST CETTE LIGNE QUI RAFRAÎCHIT L'ÉCRAN
-        if (this.onFilterChange) {
-            this.onFilterChange(this.filteredData);
-        }
+        try {
+            this.activeFilters = {};
+            
+            const year = document.getElementById('filter-year')?.value;
+            const month = document.getElementById('filter-month')?.value;
+            const country = document.getElementById('filter-country')?.value;
+            const city = document.getElementById('filter-city')?.value;
+            const hospital = document.getElementById('filter-hospital')?.value;
+            
+            if (year) this.activeFilters.year = year;
+            if (month) this.activeFilters.month = month;
+            if (country) this.activeFilters.country = country;
+            if (city) this.activeFilters.city = city;
+            if (hospital) this.activeFilters.Hospital = hospital;
+            
+            // Filtrage des données
+            this.filteredData = this.filterData(this.originalData, this.activeFilters);
+            
+            if (this.onFilterChange) {
+                this.onFilterChange(this.filteredData);
+            }
 
-        this.isFiltering = false;
-        if (applyBtn) {
-            applyBtn.innerHTML = 'Apply Filters';
-            applyBtn.style.opacity = '1';
+            this.showFilterMessage(`${this.filteredData.length.toLocaleString()} records found`);
+
+        } catch (err) {
+            console.error("Filtering error:", err);
+        } finally {
+            this.isFiltering = false;
+            if (applyBtn) {
+                applyBtn.innerHTML = 'Apply Filters';
+                applyBtn.style.opacity = '1';
+            }
         }
     }, 50);
 }
 
-// js/filterManager.js
 
 updateFilter(key, value) {
     this.activeFilters[key] = value;
     this.filteredData = this.filterData(this.originalData, this.activeFilters);
     
-    // On déclenche le callback qui est dans main.js
     if (this.onFilterChange) {
         this.onFilterChange(this.filteredData);
     }
 }
 
-filterData(data, filters) {
-    if (Object.keys(filters).length === 0) return data;
+  filterData(data, filters) {
+    if (!filters || Object.keys(filters).length === 0) return data;
 
     return data.filter(record => {
-        // Filtre Hôpital (ajouté pour l'interaction ArcGIS)
-
-        if (filters.Hospital && record.Hospital !== filters.Hospital) return false;        
-        // Filtres existants
-        if (filters.year) {
-            const recordYear = new Date(record['Date of Admission']).getFullYear();
-            if (recordYear.toString() !== filters.year) return false;
+      // 1. Filtre Hôpital 
+      if (filters.Hospital && record.Hospital !== filters.Hospital) {
+        return false;
+      }
+      
+      // 2. Filtre Année
+      if (filters.year) {
+        const recordDate = new Date(record['Date of Admission']);
+        if (recordDate.getFullYear().toString() !== filters.year) {
+          return false;
         }
-        // ... gardez le reste de votre logique (month, country, city)
-        return true;
+      }
+
+      // 3. Filtre Mois
+      if (filters.month) {
+        const recordDate = new Date(record['Date of Admission']);
+        const recordMonth = recordDate.getMonth() + 1;
+        if (recordMonth.toString() !== filters.month) {
+          return false;
+        }
+      }
+
+      // 4. Filtre Pays
+      if (filters.country && record.Country !== filters.country) {
+        return false;
+      }
+
+      // 5. Filtre Ville
+      if (filters.city && record.City !== filters.city) {
+        return false;
+      }
+
+      return true;
     });
-}
+  }
 
   resetFilters() {
     ['filter-year', 'filter-month', 'filter-country', 'filter-city', 'filter-hospital'].forEach(id => {
